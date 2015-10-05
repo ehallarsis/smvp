@@ -1,0 +1,114 @@
+[Custom Modules]
+
+1. all inside custom/ folder
+
+
+[Patched modules]
+
+1. agreement
+	agreement.module - add Decline link
+
+
+2. feeds 
+	- delete file after import (REVERT, NOT WORKING)
+	see: https://www.drupal.org/files/feeds-delete-uploaded-file-1143280-10_1.patch
+
+	- fix bug in Notice: Undefined variable: file FeedsParser.inc 
+	see https://www.drupal.org/files/issues/feeds-FeedsParser-isset-file-2053355-5.patch
+
+	- fix error: Cannot access protected property FieldCollectionItemEntity::$hostEntityId
+	see https://www.drupal.org/files/issues/FeedsUpdateIssue-1921128-12.patch
+
+
+3. filefield_paths
+	- fix bug in file renaming 
+	https://www.drupal.org/files/filefield_paths_overwrite_option-1924686-2.patch
+
+
+4. date 
+	- fix bug in date filter
+	See https://www.drupal.org/files/issues/date-undefined-index-date-2333533-1.patch
+
+5. views_data_export
+	views_data_export_plugin_style_export.inc
+	- to revise csv headers for field collection.
+	see line 296-307
+
+6. feeds/plugins/feedsParser
+	add at line 352 to handle file status
+		$file->status   = 1;
+
+7. plugins/FeedsFieldCollectionProcessor.inc
+	fix broken items when delete was called
+	See https://www.drupal.org/node/1992422 patch #6
+
+8
+	fix for broken items when delete was called
+	https://www.drupal.org/node/1921128 patch #12
+
+9. includes/entity.inc
+	line 174:
+ 	$passed_ids = !empty($ids) ? array_flip(array_filter($ids,'strlen')) : FALSE; 
+
+ 	line 353:
+ 	$entities += array_intersect_key($this->entityCache, array_flip(array_filter($ids,'strlen')));
+
+11. XLSX impleamentatin
+
+	https://www.drupal.org/files/issues/views_data_export-phpexcel_support-1269994-2.patch
+
+12. Webform clear
+	sites\all\modules\webform\includes\webform.report.inc
+-----------------------------------------------------------------
+CHEATS
+
+$importer_id = 'po_feeds';
+$file = $item['csv'];
+
+if($item['po_sync_status'] == 1 && $file!= ''){
+  $vendorno = $item['vendor_no'];
+  $output = smv_sitefeeds_move_to_active_folder($importer_id, $file, $vendorno);
+}elseif($item['po_sync_status'] == 0 && $file!= ''){
+	$output = smv_sitefeeds_move_to_exception_folder($importer_id, $file);
+}else{
+	$output = '';
+}
+
+return $output; 
+
+--
+if($field != 0 && $item[9] == ''){
+	$output = 1;
+}else{
+	$output = $field;
+}
+
+return $output;
+
+
+if($item[5] != ''){
+	$vendor_no = strval(smv_sitecron_vendornum_based_on_ponum($item[5]));
+	$vendor_uid = smv_sitecron_vendor_uid($vendor_no);
+	$output = $vendor_uid;
+}else{
+	$output = 0;
+}
+
+return $output;
+
+
+if($item[0] != ""){
+	$output = smv_sitecron_ir_ponumber_based_on_docno($item[0]);
+}else{
+	$output = "";
+}
+
+return $output;
+
+
+if($field != ""){
+	$output = smv_sitecron_convert_date_to_timestamp($field);
+}else{
+	$output = "";
+}
+return $output;

@@ -1,0 +1,579 @@
+<?php
+
+/**
+* Alter different forms using form id
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+
+function smv_multiform_alter_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+
+  /*if($form_id === 'user_login'){
+    //remove description in login forms
+    $form['name']['#description'] = t('');
+    $form['pass']['#description'] = t('');
+
+    //additional validation, allow use of alias
+    array_unshift($form['#validate'],'smv_multiform_alter_user_login_validate');  
+  }*/
+
+  //customize display of fields based on user role (excluding system admin)
+  if($form_id === 'user_profile_form' && !in_array('administrator', $user->roles)){
+
+    drupal_set_title(t('User Profile'));
+    
+    $form['account']['mail']['#description'] = t('');
+    $form['account']['mail']['#title'] = t('E-mail Address');
+
+    //hide current password field
+    unset($form['account']['current_pass']);  
+    unset($form['account']['current_pass_required_values']);
+  
+    $form['#validate'] = array_diff($form['#validate'], array('user_validate_current_pass'));  
+
+    //vendor and pre-authorized user role     
+    if (in_array('pre-authorized', $user->roles) || in_array('vendor', $user->roles)) {
+
+      if(isset($_SESSION['pass_reset_' . $user->uid])){
+        array_unshift($form['#validate'],'smv_multiform_alter_passreset_validate');  
+      }
+
+      if(in_array('pre-authorized', $user->roles)){        
+        array_unshift($form['#validate'],'smv_multiform_alter_editprofile_validate');  
+        $form['actions']['submit']['#value'] = t('Confirm');  
+      }
+
+      //disable editing vendor account (aka userid)Ff
+      $form['field_vendor_account']['und']['0']['value']['#title'] = t('User ID');
+      $form['field_vendor_account']['#disabled'] = TRUE;
+
+      //disable editing of vendor name
+      $form['field_vendor_name']['#disabled'] = TRUE;
+
+      //hide, remove access to fields
+      $form['field_internalusers_fullname']['#access'] = FALSE;
+      $form['field_internalusers_pcode']['#access'] = FALSE;
+      $form['field_vendor_main_account']['#access'] = FALSE;
+      $form['field_user_locked']['#access'] = FALSE;
+      $form['field_user_locked_permanent']['#access'] = FALSE;      
+
+      //require fields
+      $form['field_vendor_business_add']['und']['0']['value']['#required'] = TRUE;
+      $form['field_vendor_contactname']['und']['0']['value']['#required'] = TRUE;
+      $form['field_vendor_contactno']['und']['0']['value']['#required'] = TRUE;
+      $form['field_vendor_security_question']['und']['#required'] = TRUE;
+      $form['field_vendor_sq_answer']['und']['0']['value']['#required'] = TRUE;
+      $form['field_vendor_email2']['und']['0']['value']['#required'] = TRUE;
+
+      //check if current vendor is using main account. 
+      $currentuser = user_load($user->uid);
+      $wrapper = entity_metadata_wrapper('user', $currentuser);
+      $mainaccount = $wrapper->field_vendor_main_account->value();
+
+      if($mainaccount == 1){
+
+        $alias_list_link = url('other-accounts', array('absolute'=>TRUE));
+  
+        if(in_array('vendor', $user->roles)){        
+          $form['user-profile-vendor-otheraccounts-link'] = array(    
+            '#markup' => '<div class="otheraccounts"><a href="'.$alias_list_link.'"><span>Other Accounts</span></a></div><br>',    
+            '#weight' => -99,
+          );  
+        }
+
+        //require alias
+        $form['field_vendor_alias']['und']['0']['value']['#required'] = TRUE;
+
+      }else{          
+
+        $form['field_vendor_alias']['#disabled'] = TRUE;
+
+        //hide the following fields form generic accounts
+        $form['field_vendor_name']['#access'] = FALSE;
+        $form['field_vendor_business_add']['#access'] = FALSE;      
+      }
+    } 
+
+    if(in_array('siteadmin',$user->roles)){
+      
+      $uid_to_edit = $form['#user']->uid;
+      $form['actions']['cancel']['#access'] = FALSE;
+      
+      //Admin is editing another user accounts
+      if($user->uid != $uid_to_edit){
+        
+        $account = user_load($uid_to_edit); 
+
+        //internal users
+        if(in_array('internal-users',$account->roles) || in_array('siteadmin',$account->roles)){
+
+          $option_roles = array();
+          $dbroles = db_query("SELECT rid, name FROM {role} 
+            WHERE rid != 1 AND rid != 2 AND rid != 3 AND rid != 5 AND rid != 7 AND rid != 12 and rid != 13 AND rid != 19 ORDER BY name");
+
+          $option_roles[12] = 'Site Administrator';
+          if($dbroles){
+            foreach ($dbroles as $dbrole) {
+              $option_roles[$dbrole->rid] = $dbrole->name;
+            }  
+          }
+
+          //user assigned role
+          $current_rid = db_query('SELECT rid FROM {users_roles} WHERE rid != 2 AND rid != 19 AND uid = :uid LIMIT 1',array(':uid'=>$account->uid))->fetchField();
+
+          //Assign role
+          $form['user_rid'] = array(
+            '#type' => 'select',
+            '#title' => t('User Type'),
+            '#options' => $option_roles,  
+            '#default_value' => $current_rid,
+            '#weight' => 5,
+            //'#required' => TRUE,
+          );
+          $form['current_rid'] = array(
+            '#type' => 'hidden',
+            '#default_value' => $current_rid,
+          );        
+
+          $form['field_internalusers_pcode']['#states'] = array('disabled' => array(':input[name="user_rid"]' => array('value' => 12)));
+
+          $form['#submit'][] = '_smv_multiform_alter_roleadd_submit'; 
+
+          $form['account']['pass']['#access'] = FALSE;
+          $form['account']['name']['#disabled'] = TRUE;
+          $form['account']['name']['#description'] = '';          
+
+          $form['field_vendor_name']['#access'] = FALSE;
+          $form['field_vendor_business_add']['#access'] = FALSE;
+          $form['field_vendor_account']['#access'] = FALSE;
+          $form['field_vendor_alias']['#access'] = FALSE;
+          $form['field_vendor_contactname']['#access'] = FALSE;
+          $form['field_vendor_contactno']['#access'] = FALSE;
+          $form['field_vendor_email2']['#access'] = FALSE;
+          $form['field_vendor_security_question']['#access'] = FALSE;
+          $form['field_vendor_sq_answer']['#access'] = FALSE;
+          $form['field_vendor_main_account']['#access'] = FALSE;
+          $form['field_user_locked']['#access'] = FALSE;
+          $form['field_user_locked_permanent']['#access'] = FALSE;
+        }else{
+          //vendors
+          $form['field_internalusers_pcode']['#access'] = FALSE;
+          $form['field_internalusers_fullname']['#access'] = FALSE;
+          $form['field_vendor_name']['#disabled'] = TRUE;
+          $form['field_vendor_account']['#disabled'] = TRUE;
+          $form['field_vendor_main_account']['#access'] = FALSE;
+          $form['field_user_locked']['#access'] = FALSE;
+          $form['field_user_locked_permanent']['#access'] = FALSE;   
+          $form['account']['name']['#access'] = FALSE;      
+        }
+
+        //Status field (Active/Blocked)
+        $user_to_edit = user_load($uid_to_edit);
+        $option = array(0=>'Blocked', 1=>'Active');
+        $form['account']['status']['#type'] = "select";
+        $form['account']['status']['#options'] = $option;  
+        $form['account']['status']['#default_value'] = $user_to_edit->status;            
+
+      }else{
+        //sm admin edit own profile
+
+        if($user->uid != 145){
+          //hide password field on a not predefined smadmin
+          $form['account']['pass']['#access'] = FALSE;
+          $form['account']['name']['#disabled'] = TRUE;         
+        }
+
+        $form['account']['name']['#description'] = ''; 
+        $form['field_vendor_name']['#access'] = FALSE;
+        $form['field_vendor_business_add']['#access'] = FALSE;
+        $form['field_vendor_account']['#access'] = FALSE;
+        $form['field_vendor_alias']['#access'] = FALSE;
+        $form['field_vendor_contactname']['#access'] = FALSE;
+        $form['field_vendor_contactno']['#access'] = FALSE;
+        $form['field_vendor_email2']['#access'] = FALSE;
+        $form['field_vendor_security_question']['#access'] = FALSE;
+        $form['field_vendor_sq_answer']['#access'] = FALSE;
+        $form['field_vendor_main_account']['#access'] = FALSE;
+        $form['field_user_locked']['#access'] = FALSE;
+        $form['field_user_locked_permanent']['#access'] = FALSE;
+        $form['field_internalusers_pcode']['#access'] = FALSE;
+        $form['account']['status']['#access'] = FALSE;
+      }
+    }
+
+    //Internal users editing their own profile
+    if(in_array('internal-users',$user->roles)){   
+
+      $user_roles = array();
+      foreach($user->roles as $role) {
+        if($role != "internal-users" && $role != "authenticated user"){
+          $user_roles[] = $role;
+        }
+      }
+      $role_output = implode(',',$user_roles);
+
+      $form['temp-usertype'] = array(
+        '#type' => 'textfield', 
+        '#title' => t('User Type'),
+        '#default_value' => $role_output,
+        '#disabled' => TRUE,
+        '#weight' => 5,
+      );
+
+      $form['account']['pass']['#access'] = FALSE;
+      $form['account']['name']['#disabled'] = TRUE;
+      $form['account']['name']['#access'] = TRUE;
+      $form['account']['name']['#description'] = ''; 
+
+      $form['field_vendor_name']['#access'] = FALSE;
+      $form['field_vendor_business_add']['#access'] = FALSE;
+      $form['field_vendor_account']['#access'] = FALSE;
+      $form['field_vendor_alias']['#access'] = FALSE;
+      $form['field_vendor_contactname']['#access'] = FALSE;
+      $form['field_vendor_contactno']['#access'] = FALSE;
+      $form['field_vendor_email2']['#access'] = FALSE;
+      $form['field_vendor_security_question']['#access'] = FALSE;
+      $form['field_vendor_sq_answer']['#access'] = FALSE;
+      $form['field_vendor_main_account']['#access'] = FALSE;
+      $form['field_user_locked']['#access'] = FALSE;
+      $form['field_user_locked_permanent']['#access'] = FALSE;
+      $form['field_internalusers_pcode']['#disabled'] = TRUE;
+    }      
+
+  }
+
+  //Forgot Password
+  if($form_id == 'user_pass'){
+
+    drupal_set_title(t('USER PROFILE'));
+    
+    $form['user_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('User ID'),
+      '#size' => 60,
+      '#required' => TRUE,
+      '#weight' => 1,
+      /*'#ajax' => array(
+        'callback' => '_ajax_show_security_question_callback',
+        'wrapper' => 'security_question_wrapper',
+        'progress' => array('type'=>'','message'=>NULL),
+      ),*/
+    );  
+
+    $form['name'] = array(
+      '#title' => t('E-mail address'),
+      '#type' => 'textfield',      
+      '#ajax' => array(
+        'callback' => '_ajax_show_security_question_callback',
+        'wrapper' => 'security_question_wrapper',
+        'effect' => 'fade',
+        'progress' => array('type'=>'throbber','message'=>'Please wait.. validating to reveal your security question'),
+      ),
+      '#weight' => 2,
+    );    
+
+    $form['sqa'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Security Question:'),
+      '#size' => 60,
+      '#required' => TRUE,
+      '#weight' => 3,
+      '#prefix' => '<div id="security_question_wrapper">',
+      '#suffix' => '</div>',      
+    );      
+
+    if (!empty($form_state['values']['name'])) {
+      $mail = $form_state['values']['name'];
+      $vendorno = $form_state['values']['user_id'];
+
+      // Load by email.
+      $users = user_load_multiple(array(), array('mail' => $mail, 'status' => '1'));
+      $account = reset($users);
+      $account_vendorno = smv_vendor_accounts_vendoraccount_number($account->uid);
+
+      $user_field_info = field_get_items('user', $account, 'field_vendor_security_question');
+      $tid = check_plain($user_field_info[0]['tid']);
+
+      if($tid){
+        $term = taxonomy_term_load($tid);   
+        $question = $term->name;
+      }else{
+        $question = '';
+      }  
+
+      if($account && $account_vendorno == $vendorno){
+        $form['sqa']['#title'] = t("Security Question: <br><span class='question'>@value</span>", array('@value'=>$question));
+      }      
+    }   
+
+    $form['other-info'] = array(    
+      '#markup' => '<div class="forgotpass-note"><p>Because you\'re accessing sensitive information, you need to verify your User ID, e-mail Address and answer to your security question correctly to access your account.<br><br>Reset password instruction will be sent to your registered email address.</p></div>',
+      '#weight' => 4,
+    );
+
+    $form['actions']['submit']['#value'] = t('Submit');
+
+    $back_link = url('user', array('absolute'=>TRUE));
+
+    $form['back-link'] = array(    
+      '#markup' => '<div class="back"><a href="'.$back_link.'">Back</a></div>',   
+      '#weight' => 6, 
+    );
+
+    array_unshift($form['#validate'], 'smv_multiform_alter_forgotpass_validate');
+  }
+
+  //Company Users
+  if ($form_id == 'views_exposed_form' && $form_state['view']->name == 'admin_manage_users' 
+    && $form['#id'] == 'views-exposed-form-admin-manage-users-page-1'){
+      
+    //status filter
+    $option = array('All' => '- Any -', 1=>'Active', 0=>'Blocked');
+    $form['status']['#options'] = $option;  
+
+    $option_roles = array();
+    $dbroles = db_query("SELECT rid, name FROM {role} 
+      WHERE rid != 1 AND rid != 2 AND rid != 3 AND rid != 5 AND rid != 7 AND rid != 12 and rid != 13 AND rid != 19 ORDER BY name");
+
+    $option_roles['All'] = t('- Any -');
+    $option_roles[12] = 'Site Administrator';
+    if($dbroles){
+      foreach ($dbroles as $dbrole) {
+        $option_roles[$dbrole->rid] = $dbrole->name;
+      }  
+    }
+
+    //Usertype filter
+    $form['usertype']['#options'] = $option_roles;
+  }
+
+  //Vendor List
+  if ($form_id == 'views_exposed_form' && $form_state['view']->name == 'admin_manage_users' 
+    && $form['#id'] == 'views-exposed-form-admin-manage-users-page'){
+
+    $option = array('All' => '- Any -', 1=>'Active', 2=>'Locked', 0=>'Blocked');
+    $form['status']['#options'] = $option; 
+  }
+
+  return $form;
+}
+
+function _smv_multiform_alter_roleadd_submit($form, &$form_state){
+  $uid_to_edit = $form['#user']->uid;
+
+  $rid_current = $form_state['values']['current_rid'];
+  $rid_new = $form_state['values']['user_rid'];
+
+  if($rid_current != $rid_new){
+    
+    //selected is siteadmin, remove internal-users role
+    if($rid_new == 12){
+      smv_account_remove_role_from_user($uid_to_edit, 'internal-users');
+    }
+
+    //add internal users role
+    if($rid_new != 12){
+      smv_account_add_role_to_user($uid_to_edit, 'internal-users');      
+    }
+
+    $current_rolename = smv_multiform_alter_get_rolename($rid_current);
+    $new_rolename = smv_multiform_alter_get_rolename($rid_new);   
+
+    smv_account_remove_role_from_user($uid_to_edit, $current_rolename);
+    smv_account_add_role_to_user($uid_to_edit, $new_rolename);      
+  }
+}
+
+function smv_multiform_alter_get_rolename($rid){
+  $result = db_query('SELECT name FROM {role} WHERE rid = :rid',array(':rid'=>$rid))->fetchField();
+  return $result;
+}
+
+function _ajax_show_security_question_callback($form, &$form_state){
+  return $form['sqa'];
+}
+
+function smv_multiform_alter_forgotpass_validate($form, &$form_state){
+
+  $mail = trim($form_state['values']['name']);
+  $vendorno = trim($form_state['values']['user_id']);
+  $sqa = trim($form_state['values']['sqa']);
+
+  if(!valid_email_address($mail)){
+    form_set_error('name', t('Please enter a valid email address.'));
+  }
+
+  // Load by email.
+  $users = user_load_multiple(array(), array('mail' => $mail, 'status' => '1'));
+  $account = reset($users);
+
+  if(!$account){
+    form_set_error('name', t('Invalid user credentials'));
+    form_set_error('user_id', t(''));
+    form_set_error('sqa', t(''));
+  }
+
+  if($account){
+
+    /*if(in_array('pre-authorized', $account->roles)){
+      form_set_error('name', t('Sorry, account verification is required. Please contact SM Administrator to verify your account.'));
+    } */
+
+    //user id/vendor account validation
+    $account_vendorno = smv_vendor_accounts_vendoraccount_number($account->uid);
+    if($account_vendorno !=  $vendorno){
+      form_set_error('name', t('Invalid user credentials'));
+      form_set_error('user_id', t(''));
+      form_set_error('sqa', t(''));
+    }
+
+    //security question validation
+    $answer = smv_vendor_accounts_vendoraccount_sq_answer($account->uid);
+    if($answer){
+      $account_answer = strtolower($answer);
+      $submitted_ans  = strtolower($sqa);
+
+      if($account_answer != $submitted_ans){
+        form_set_error('name', t('Invalid user credentials. Please enter the correct answer to your security question.'));
+        form_set_error('user_id', t(''));
+        form_set_error('sqa', t(''));        
+      }
+    }
+  }
+}
+
+function smv_multiform_alter_editprofile_validate($form, &$form_state){
+  global $user;
+
+  $uid    = $form['#user']->uid;
+  $alias  = $form_state['values']['field_vendor_alias']['und'][0]['value'];
+  $email  = $form_state['values']['mail'];
+  $email2 = $form_state['values']['field_vendor_email2']['und'][0]['value'];
+  
+  //check if alias already exists as username  
+  if(isset($alias) && smv_vendor_accounts_existing_username($alias,$uid)){  
+    form_set_error('field_vendor_alias', t('The specified alias already exists as User ID.'));
+  }
+
+  //check if alias already exists
+  if(isset($alias) && smv_vendor_accounts_existing_alias($alias,$uid)) {  
+    form_set_error('field_vendor_alias', t('Alias already exists.'));
+  } 
+
+  //validate primary email address
+  if(smv_vendor_accounts_existing_email($email,$uid)){ 
+    form_set_error('mail', t('E-mail Address already exists.'));
+  } 
+  if(smv_vendor_accounts_existing_secondary_email($email,$uid)){ 
+    form_set_error('mail', t('E-mail Address already exists.'));
+  }   
+
+  //validate secondary email address
+  if(isset($email2) && $email2 != ""){
+    if(!valid_email_address($email2)){
+      form_set_error('field_vendor_email2', t('Please enter a valid email address.'));
+    } 
+
+    //exists as another primary email address
+    if(smv_vendor_accounts_existing_email($email2, $uid)){ 
+      form_set_error('field_vendor_email2', t('E-mail Address already exists.'));
+    }  
+
+    //exist as another secondary email address
+    if(smv_vendor_accounts_existing_secondary_email($email2, $uid)){ 
+      form_set_error('field_vendor_email2', t('E-mail Address already exists.'));
+    }    
+
+    if($email == $email2){
+      form_set_error('mail', t('Please enter a different primary and secondary e-mail address.'));
+      form_set_error('field_vendor_email2', '');
+    }
+  }
+
+  //Pre-authorized account should change their password
+  if(in_array('pre-authorized', $user->roles)){
+    $current = user_load($user->uid);
+    $pass    = $form_state['values']['pass'];
+    $pass_match = user_check_password($pass, $current);
+
+    if($pass_match || $pass==''){
+      form_set_error('pass', t('Password change is required for account verification.'));
+    }
+  }
+}
+
+function smv_multiform_alter_passreset_validate($form, &$form_state){
+  global $user;
+
+  if(isset($_SESSION['pass_reset_' . $user->uid])){
+    $current = user_load($user->uid);
+    $pass    = $form_state['values']['pass'];
+    $pass_match = user_check_password($pass, $current);
+
+    if($pass_match || $pass==''){
+      form_set_error('pass', t('Password change is required.'));
+    }else{
+      unset($_SESSION['pass_reset_'. $user->uid]);
+    }
+  }
+}
+
+/**
+ * Implement hook_user_update
+ * Send account confirmation and force logout user
+ */
+function smv_multiform_alter_user_update(&$edit, $account, $category) {  
+  global $user;
+  global $base_url;
+
+  $currentuser = user_load($user->uid);
+  $path = current_path();
+  $editpath = "user/" . $user->uid . "/edit";
+
+  if (in_array('pre-authorized', $currentuser->roles) && $path == $editpath) {
+    
+    $email = $edit['mail'];
+    $vendorname = $edit['field_vendor_name']['und'][0]['value'];
+
+    $timestamp = REQUEST_TIME;
+    $pass_rehash = drupal_hmac_base64(drupal_get_hash_salt() . $currentuser->name, 'confirm'); 
+    $confirmation_link = "user-verification/". $currentuser->uid . "/" . $timestamp . "/" . $pass_rehash; 
+    $verification_link = $base_url .  "/" . $confirmation_link;
+
+    rules_invoke_component('rules_acccount_confirmation_email', $email, $vendorname, $verification_link, $currentuser->uid);
+
+    watchdog('user', 'Session closed for %name.', array('%name' => $currentuser->name));
+
+    module_invoke_all('user_logout', $user);
+    session_destroy();
+
+    drupal_set_message(t('You have successfully changed your password. Account verification was sent to your email address.'));
+    drupal_goto();
+  }
+
+  //admin editing other user account
+  if((in_array('siteadmin', $currentuser->roles) || in_array('administrator', $currentuser->roles)) && $path != $editpath) {
+    $uid = $account->uid;    
+
+    if(isset($edit['field_user_locked']['und'][0]['value'])){
+      $locked = $edit['field_user_locked']['und'][0]['value'];
+
+      if($locked != 1){
+        _smv_loginsecurity_remove_events($uid);
+
+        $records = db_query('SELECT ba.id,ba.uid FROM {smv_loginsecurity_blocked_accounts} ba 
+          WHERE ba.timestamp_unlocked = 0 AND ba.uid = :uid', array(':uid'=>$uid))->fetchAll();
+
+        if($records){
+          db_update('smv_loginsecurity_blocked_accounts')->fields(array('timestamp_unlocked' => REQUEST_TIME))
+            ->condition('uid', $uid)->execute();         
+        }      
+      }
+    }
+  }
+
+}

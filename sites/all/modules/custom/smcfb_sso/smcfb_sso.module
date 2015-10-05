@@ -1,0 +1,277 @@
+<?php
+
+function smcfb_sso_permission() {
+  return array(
+    'smcfb update_ldap settings' => array(
+      'title' => t('Update LDAP settings'),
+      'description' => t('Allows users to update LDAP settings'),
+    ),
+  );
+}
+
+function smcfb_sso_menu() {
+
+  $items['ldap/sso'] = array(
+    'page callback' => 'verify_and_log_user',
+    'access callback' => TRUE,
+    'description' => 'Single sign on menu',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['settings/ldap'] = array(
+    'title' => 'LDAP Settings',
+    'description' => 'Update ldap settings form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smcfb_ldap_settings_form'),
+    'access arguments' => array('smcfb update_ldap settings'),    
+  );
+  return $items;
+}
+
+function verify_and_log_user(){
+
+  if (isset($_SERVER['REDIRECT_REMOTE_USER'])) {
+    $username = $_SERVER['REDIRECT_REMOTE_USER'];
+  }
+
+  if (isset($_SERVER['REMOTE_USER'])) {
+    $username = $_SERVER['REMOTE_USER'];
+  }
+
+  if(empty($username) || !isset($username) || $username == ''){
+    drupal_set_message(t('You are not authorized to access this page.'),'error');
+    drupal_goto();
+  }
+
+  $user_obj = user_load_by_name($username);
+  $msg = "";
+
+  if ($user_obj && ($user_obj->status == 1) && (in_array('internal-users', $user_obj->roles) || in_array('siteadmin', $user_obj->roles))){
+    $form_state = array();
+    $form_state['uid'] = $user_obj->uid;      
+    user_login_submit(array(), $form_state);
+    $msg = "OK";
+  } else {
+    module_load_include('pages.inc', 'user');
+    $msg = "You are not authorized to access this page.";
+    //drupal_set_message(t('You are not authorized to access this page.'), 'error');
+    user_cookie_save(array('sso_error_message'=>'1'));
+    user_logout();
+  }
+
+  return $msg;
+}
+
+
+function smcfb_ldap_settings_form($form, &$form_state) {
+  
+  drupal_set_title(t('AD Settings/Parameters'));
+
+  $result = db_query('SELECT s.host, s.port, s.basedn, s.user, s.password, s.cn FROM {smcfb_ldap_settings} s WHERE s.id = :id', array(':id' => 1));
+
+  foreach ($result as $record) {
+     $host = $record->host;
+     $port = $record->port;
+     $basedn = $record->basedn;
+     $username = $record->user;
+     $password = base64_decode($record->password);
+     $cn = $record->cn;
+  }
+
+  $form['smcfb_ldap_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Host'),
+    '#size' => 150,
+    '#maxlength' => 150,
+    '#required' => TRUE,
+    '#default_value' => $host,
+  );
+  $form['smcfb_ldap_port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Port'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#required' => TRUE,
+    '#default_value' => $port,
+  );
+  $form['smcfb_ldap_basedn'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Service BaseDN'),
+    '#size' => 100,
+    '#maxlength' => 100,
+    '#required' => TRUE,
+    '#default_value' => $basedn,
+  );
+  $form['smcfb_ldap_username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Service username'),
+    '#size' => 150,
+    '#maxlength' => 150,
+    '#required' => TRUE,
+    '#default_value' => $username,
+  );
+  $form['smcfb_ldap_password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Service user\'s password'),
+    '#size' => 150,
+    '#maxlength' => 150,
+    '#required' => TRUE,
+    '#default_value' => $password,
+  );
+  $form['smcfb_ldap_cn'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Service user\'s CN'),
+    '#size' => 150,
+    '#maxlength' => 150,
+    '#required' => TRUE,
+    '#default_value' => $cn,
+  );
+
+  /** MULTIPLE BASEDN **/
+  // Because we have many fields with the same values, we have to set
+  // #tree to be able to access them.
+  $form['#tree'] = TRUE;
+  $form['basedn_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Additional BaseDN'),
+    // Set up the wrapper so that AJAX will be able to replace the fieldset.
+    '#prefix' => '<div id="basedn-fieldset-wrapper">',
+    '#suffix' => '</div>',
+  );
+
+  // QUERY DB
+  $result2 = db_query('SELECT b.dn FROM {smcfb_other_basedn} b');
+  $odns = array();
+  foreach ($result2 as $record) {
+     $odns[] = $record->dn;
+  }
+
+  // Build the fieldset with the proper number of names. We'll use
+  // $form_state['num_basedn'] to determine the number of textfields to build.
+  if (empty($form_state['num_basedn'])) {
+    if (count($odns) == 0) {
+      $form_state['num_basedn'] = 1;
+    } else {
+      $form_state['num_basedn'] = count($odns);
+    }
+  }
+  
+  for ($i = 0; $i < $form_state['num_basedn']; $i++) {
+    $form['basedn_fieldset']['basedn'][$i] = array(
+      '#type' => 'textfield',
+      '#title' => t('Other BaseDN #' . ($i + 1)),
+    );
+    if (isset($odns[$i])) {
+       $form['basedn_fieldset']['basedn'][$i]['#default_value'] = $odns[$i];
+    }
+  }
+  $form['basedn_fieldset']['add_name'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add'),
+    '#submit' => array('basedn_add_more_add_one'),
+    // See the examples in ajax_example.module for more details on the
+    // properties of #ajax.
+    '#ajax' => array(
+      'callback' => 'basedn_add_more_callback',
+      'wrapper' => 'basedn-fieldset-wrapper',
+    ),
+  );
+  if ($form_state['num_basedn'] > 1) {
+    $form['basedn_fieldset']['remove_name'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove'),
+      '#submit' => array('basedn_add_more_remove_one'),
+      '#ajax' => array(
+        'callback' => 'basedn_add_more_callback',
+        'wrapper' => 'basedn-fieldset-wrapper',
+      ),
+    );
+  }
+  /** END - MULT. BASEDN **/
+
+  $form['smcfb_ldap_settings_submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Confirm'),
+    '#submit' => array('smcfb_ldap_settings_form_submit'),
+  );
+  global $base_url;
+	$form['smcfb_ldap_settings_cancel'] = array(
+		'#type' => 'button',
+		'#attributes' => array('onClick' => 'location.replace("'.$base_url.'/global-settings"); return false;'),
+		'#value' => t('Cancel'),
+	);
+  return $form;
+}
+
+function smcfb_ldap_settings_form_submit($form, &$form_state) {
+  $host = trim($form_state['values']['smcfb_ldap_host']);
+  $port = trim($form_state['values']['smcfb_ldap_port']);
+  $basedn = trim($form_state['values']['smcfb_ldap_basedn']);
+  $username = trim($form_state['values']['smcfb_ldap_username']);
+  $password = trim($form_state['values']['smcfb_ldap_password']);
+  $cn = trim($form_state['values']['smcfb_ldap_cn']);
+
+  $query = db_update('smcfb_ldap_settings')
+      ->fields(array(
+        'host' => $host,
+        'port' => $port,
+        'basedn' => $basedn,
+        'user' => $username,
+        'password' => base64_encode($password),
+        'cn' => $cn,
+      ))
+      ->condition('id', 1);
+  $query->execute();
+
+  // save other OUs
+  db_truncate('smcfb_other_basedn')->execute();
+
+  $dn = $form_state['values']['basedn_fieldset']['basedn'];
+  
+  $other_basedns = array();
+  foreach ($dn as $value) {
+    if (strlen(trim($value)) > 0)
+      $other_basedns[]['dn'] = $value;
+  }
+  
+  $query = db_insert('smcfb_other_basedn')->fields(array('dn'));
+  foreach ($other_basedns as $record) {
+    $query->values($record);
+  }
+  $query->execute();
+
+  drupal_set_message(t('LDAP settings has been successfully updated.'));
+}
+
+/** MULTIPLE BASEDN **/
+/**
+ * Callback for both ajax-enabled buttons.
+ *
+ * Selects and returns the fieldset with the names in it.
+ */
+function basedn_add_more_callback($form, $form_state) {
+  return $form['basedn_fieldset'];
+}
+/**
+ * Submit handler for the "add-one-more" button.
+ *
+ * Increments the max counter and causes a rebuild.
+ */
+function basedn_add_more_add_one($form, &$form_state) {
+  $form_state['num_basedn']++;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Submit handler for the "remove one" button.
+ *
+ * Decrements the max counter and causes a form rebuild.
+ */
+function basedn_add_more_remove_one($form, &$form_state) {
+  if ($form_state['num_basedn'] > 1) {
+    $form_state['num_basedn']--;
+  }
+  $form_state['rebuild'] = TRUE;
+}
+
+?>

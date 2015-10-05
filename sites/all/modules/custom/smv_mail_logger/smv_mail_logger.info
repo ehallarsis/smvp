@@ -1,0 +1,4 @@
+name = Views Mail Logger
+description = Custom mail logger table for views
+core = 7.x
+package = PRIMESOFT

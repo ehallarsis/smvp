@@ -1,0 +1,197 @@
+<?php
+
+/*
+ * Implements hook_menu().
+ */
+function smv_views_menu() {
+  
+  $items = array();
+ 
+	$items['batch-download'] = array( 
+    'title' => 'Home', 
+    'page callback' => '_smv_batch_download', 
+    'access callback' => "user_is_logged_in",
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['batch-csv'] = array( 
+    'title' => 'Home', 
+    'page callback' => '_smv_batch_csv', 
+    'access callback' => "user_is_logged_in",
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['batch-excel'] = array( 
+    'title' => 'Home', 
+    'page callback' => '_smv_batch_excel', 
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+	return $items;
+}
+
+function _smv_batch_download(){
+  global $user;
+  $path_public = drupal_realpath('public://');
+  $zipname = $path_public . '/pdf_sample/' . 'pdf_download_' . $user->name . '.zip';
+
+  $url_nids = htmlspecialchars(arg(1));
+  $arr_nids = explode(",", $url_nids);
+
+  $zip = new ZipArchive;
+  $zip->open($zipname, ZipArchive::CREATE);
+
+  foreach ($arr_nids as $po_nid) {
+    $po_node = node_load($po_nid);
+    $po_node_wrapper = entity_metadata_wrapper('node', $po_node);
+
+    switch ($po_node_wrapper->type->value()){
+      case 'purchase_order':
+          if(isset($po_node_wrapper->field_po_pdf)) {
+            $file = $po_node_wrapper->field_po_pdf->value();
+            $file_path = drupal_realpath($file['uri']);
+            $zip->addFile($file_path, $file['filename']);
+          }
+          break;
+      case 'payment_voucher':
+          if(isset($po_node_wrapper->field_pv_pdf)) {
+            $file = $po_node_wrapper->field_pv_pdf->value();
+            $file_path = drupal_realpath($file['uri']);
+            $zip->addFile($file_path, $file['filename']);
+          }
+          break;
+      case 'bir':
+          if(isset($po_node_wrapper->field_bir_pdf)) {
+            $file = $po_node_wrapper->field_bir_pdf->value();
+            $file_path = drupal_realpath($file['uri']);
+            $zip->addFile($file_path, $file['filename']);
+          }
+          break;
+    }
+  }
+  $zip->close();
+
+  if(file_exists($zipname)){
+
+    ///Then download the zipped file.
+    ob_get_clean();
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private", false);
+    header("Content-Type: application/zip");
+    header("Content-Disposition: attachment; filename=" . basename($zipname) . ";" );
+    header("Content-Transfer-Encoding: binary");
+    header("Content-Length: " . filesize($zipname));
+    readfile($zipname);
+    unlink($zipname);
+  }
+  else {
+    drupal_set_message(t('No file to download.'), 'error');
+    drupal_goto($_SERVER['HTTP_REFERER']);
+  }
+}
+
+function _smv_batch_csv(){
+  global $user;
+  $path_public = drupal_realpath('public://');
+  $zipname = $path_public . '/csv_sample/' . 'csv_download_' . $user->name . '.zip';
+
+  $url_nids = htmlspecialchars(arg(1));
+  $arr_nids = explode(',', $url_nids);
+
+  $zip = new ZipArchive;
+  $zip->open($zipname, ZipArchive::CREATE);
+
+  foreach ($arr_nids as $po_nid) {
+    $po_node = node_load($po_nid);
+    $po_node_wrapper = entity_metadata_wrapper('node', $po_node);
+
+    switch ($po_node_wrapper->type->value()){
+      case 'purchase_order':
+          if(isset($po_node_wrapper->field_po_csv)) {
+            $file = $po_node_wrapper->field_po_csv->value();
+            $file_path = drupal_realpath($file['uri']);
+            $zip->addFile($file_path, $file['filename']);
+          }
+          break;
+      case 'payment_voucher':
+          if(isset($po_node_wrapper->field_pv_csv)) {
+            $file = $po_node_wrapper->field_pv_csv->value();
+            $file_path = drupal_realpath($file['uri']);
+            $zip->addFile($file_path, $file['filename']);
+          }
+          break;
+    }
+  }
+  $zip->close();
+
+  if(file_exists($zipname)){
+
+    ///Then download the zipped file.
+    ob_get_clean();
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private", false);
+    header("Content-Type: application/zip");
+    header("Content-Disposition: attachment; filename=" . basename($zipname) . ";" );
+    header("Content-Transfer-Encoding: binary");
+    header("Content-Length: " . filesize($zipname));
+    readfile($zipname);
+    unlink($zipname);
+  }
+  else {
+    drupal_set_message(t('No file to download.'), 'error');
+    drupal_goto($_SERVER['HTTP_REFERER']);
+  }
+}
+
+function _smv_batch_excel(){
+  global $user;
+  $path_public = drupal_realpath('public://');
+  $zipname = $path_public . '/excel_sample/' . 'excel_download_' . $user->name . '.zip';
+
+  $url_nids = htmlspecialchars(arg(1));
+  $arr_nids = explode(",", $url_nids);
+
+  $zip = new ZipArchive;
+  $zip->open($zipname, ZipArchive::CREATE);
+
+  foreach ($arr_nids as $po_nid) {
+    $po_node = node_load($po_nid);
+    $po_node_wrapper = entity_metadata_wrapper('node', $po_node);
+
+    switch ($po_node_wrapper->type->value()){
+      case 'payment_voucher':
+          if(isset($po_node_wrapper->field_pv_xls)) {
+            $file = $po_node_wrapper->field_pv_xls->value();
+            $file_path = drupal_realpath($file['uri']);
+            $zip->addFile($file_path, $file['filename']);
+          }
+          break;
+    }
+  }
+  $zip->close();
+
+  if(file_exists($zipname)){
+
+    ///Then download the zipped file.
+    ob_get_clean();
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private", false);
+    header("Content-Type: application/zip");
+    header("Content-Disposition: attachment; filename=" . basename($zipname) . ";" );
+    header("Content-Transfer-Encoding: binary");
+    header("Content-Length: " . filesize($zipname));
+    readfile($zipname);
+    unlink($zipname);
+  }
+  else {
+    drupal_set_message(t('No file to download.'), 'error');
+    drupal_goto($_SERVER['HTTP_REFERER']);
+  }
+}

@@ -1,0 +1,6 @@
+name = Inline update
+description = Inline update of Purchase order status
+core = 7.x
+package = PRIMESOFT
+
+files[] = views/smv_inlineupdate_field_handler_status_edit.inc

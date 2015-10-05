@@ -1,0 +1,20 @@
+[VENDOR PAGE]
+
+See templates/vendor folder
+
+Vendor Login
+username: jen
+password: Qwerty@123
+
+Template Description:
+
+* templates/vendor/views-view--purchase-order--page.tpl.php
+ 	- whole Purchase Order page. 
+ 	- Note the .view-purchase-order-empty-wrapper class. This wrapper will be used when search form was used. 
+
+* templates/vendor/views-view-accordion--purchase-order.tpl.php
+ 	- accordion menu
+
+* templates/vendor/views-view-table--purchase-order--page.tpl.php
+ 	- table showing the page content including links for csv,pdf, & xml
+

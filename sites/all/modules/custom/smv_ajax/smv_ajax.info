@@ -1,0 +1,4 @@
+name = Ajax scipt
+description = Ajax script to run (PDF view)
+core = 7.x
+package = PRIMESOFT

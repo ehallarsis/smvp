@@ -1,0 +1,36 @@
+<?php
+
+/**
+* Custom mail logger table for views
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+function smv_mail_logger_menu() {
+  $items = array();
+
+  $items['notification/delete/%'] = array(
+    'title' => 'Delete Notification',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smv_mail_logger_delete_confirm',2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_mail_logger.pages.inc',
+  );
+
+  return $items;
+}  
+
+function smv_mail_logger_views_api() {
+  return array(
+      'api' => '3',
+  );
+}
+
+/*
+* Invoked hook_user_delete()
+*/
+function smv_mail_logger_user_delete($account){
+  db_delete('mail_logger')->condition('referenceId', $account->uid)->execute();
+}

@@ -1,0 +1,780 @@
+html{height:100%}
+body.not-front{background:url(../images/bg_04.jpg) repeat-x; min-width:1000px}
+body.page-user-password{background:#fff;}
+body{position:relative; min-height:100%; padding-bottom:150px}
+#page{max-width:1700px; min-width:1000px}
+
+/*-----------User Log In----------------*/
+div.messages > ul{list-style-type: none; padding: 0; margin: 0;}
+.header-line{background:#20398d; width:100%; height:3px;min-width:1000px}
+.front #page,.page-user-password #page{background:url(../images/sm-login_03.jpg) no-repeat; max-width:835px;min-width:835px;margin: 7% auto auto; height:440px;}
+.front #page > header > div > a > img{display:none;}
+.page-user #main .user-logo{background:url(../images/SMPrime_logo.png) no-repeat center; height:147px;}
+.page-user #content > ul.tabs{display:none}
+.page-user #login-form {margin-left:5%;}
+.page-user #login-form label{color:#fff; margin-bottom:0}
+.page-user #user-login .form-item label{width:30%}
+.page-user #user-login p{color:#fff; letter-spacing:-0.3px; line-height::12px; margin:10px 0}
+.page-user #user-login .login-reset-pass a{line-height: 55px; float:right; font-style: italic; color:#fff; font-size: 12px;}
+.page-user .log-in-footer {background:url(../images/footer-icon.png) no-repeat center bottom;height:25px; margin-top:15%;display:none}/*Hide*/
+.page-user .user-right-icon {margin: 5px 0;}
+.page-user .user-right-icon a{color:#fff; margin-left:20px}
+.page-user-password .goDaddyLogo {background: url(../images/godaddy.png) no-repeat right;height: 32px;background-size: contain;text-indent: -9999em;margin-top: 4.4em}
+.login-border{float: right; position: relative; border-top:2px solid #0b2a92; box-shadow:2px 1px 0 #2f4aa1; right: -11px; width: 332px;}
+.login-footer-note{float: right !important; position: relative; right: 3%}
+.goDaddyLogo {background: url(../images/godaddy.png) no-repeat right;height: 32px;background-size: contain;text-indent: -9999em;margin-top: 2.5em}
+.not-logged-in #colorbox article.node-announcement .form-actions{display:none}
+.not-logged-in #content div.error, .not-logged-in #content div.status {position: absolute;width: 805px;top: 0.5em;}
+#vendor-icon{background:url(../images/Untitled-1_07.png) no-repeat; height:14px}
+#announce-icon{background:url(../images/Untitled-1_10.png) no-repeat; height:14px}
+#quick-icon{background:url(../images/Untitled-1_12.png) no-repeat; height:14px}
+#contact-icon{background:url(../images/Untitled-1_14.png) no-repeat; height:14px}
+.ldap-login a{color: #fff;position: absolute;top: -17px;right: 0;padding: 0.6em 1.2em;background: #00175b;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;}
+.ldap-login a:hover{background: #0066bd;color:#fff; text-decoration: none}
+.ldap-login a:after {content: "";width: 7px;height: 7px;background:url(../images/arrow-right.png) no-repeat;margin-left: 1em;display: inline-block;}
+
+/*----------user forgot password---------*/
+.pad-left{padding:0 0 0 30px !important}
+.page-user-password h1#page-title{display:none}
+.page-user-password div.forgotpass-note{display:none}
+.page-user-password #navigation{height:20px !important;}
+.page-user-password .login-footer-note p.forgotpass-note{color:#fff;font-family: 'myriad_web_proregular';font-size: 11px; margin-top:0.5em}
+.page-user-password #page header{display:none}
+.page-user-password label{width:100%;}
+.page-user-password #login-form {margin-top:-1em}
+.page-user-password #login-form div#security_question_wrapper .form-item-sqa > input{display: block;width: 100%;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.42857;color: #555;vertical-align: middle;background-color: #FFF;background-image: none;border: 1px solid #BAC6D0;border-radius: 4px;box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;}
+.page-user-password .login-border{float: right;position: relative;border-top: 2px solid #0b2a92;box-shadow: 2px 1px 0 #2f4aa1;right: -11px;width: 332px;margin-top: 0.5em;}
+.page-user-password .back a {line-height: 35px;float: right;font-style: italic;color: #fff;font-size: 12px;}
+.page-user-password #login-form div.form-item{margin: 1em 0 !important}
+.page-user-password #login-form #edit-actions input{width:100%;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-user-password #login-form div.form-actions{margin-top:0;}
+.page-user-password #login-form div.forgotpass-note p{margin-top:6em;}
+.page-user-password #login-form .ajax-progress .message{color:#ffffff;}
+.page-user-password form div.col-lg-7 h3{text-align: center;font-weight: bold;color: #0067be;text-transform: uppercase;font-size: 25px;}
+#login-form .form-item label{width:100%}
+#user-pass--2 #login-form .ajax-progress .message{color:#ffffff;}
+
+/*-----------Icons---------------*/
+#poSearch .pdf {background:url(../images/pdf-icon.png) no-repeat; background-position:left top;height:24px;display: inline-block; width:75px}
+#poSearch .xml {background:url(../images/xcel-icon.png) no-repeat;background-position:left top;height:24px;display: inline-block; width:115px}
+#poSearch .csv {background:url(../images/print-icon.png) no-repeat; background-position:left top;height:24px;display: inline-block; width:115px}
+#poSearch .alias{background:url(../images/alias-icon.png) no-repeat; background-position: left top; height:34px; display: inline-block; width:108px}
+#poSearch .user{background:url(../images/user-icon.png) no-repeat; background-position: left top; height:24px; display:inline-block; width:130px}
+#poSearch .back{background:url(../images/back-icon.png) no-repeat; background-position: left top; height: 24px; display: inline-block; width: 228px}
+#poSearch .list{background:url(../images/back-icon.png) no-repeat; background-position: left top; height: 24px; display: inline-block; width: 250px; margin-bottom: -7px;}
+#poSearch .add{background:url(../images/add-icon.png) no-repeat; background-position: left top; height: 24px; display: inline-block; width: 176px}
+#poSearch a:hover{text-decoration:none !important}
+
+/*-----------Terms and Conditions---------*/
+.not-front #header > div {margin-bottom:20px}
+.not-front #page #header {margin-top:25px}
+.not-front #page #header #block-views-user-block-block ul{margin-top:15px;text-transform: uppercase;font-weight: bold;font-size: 12px;}
+.not-front #page #header #block-views-user-block-block ul li:nth-child(1){display: inline-block;padding-right:5px}
+.not-front #page #header #block-views-user-block-block ul li:nth-child(2){display: inline-block;padding-left: 8px; border-left: 1px solid;line-height: 12px}
+.not-front #page #main #content #agreement-form #edit-submit{margin-right: 0.2em;}
+.not-front .userInfo{text-align: right; padding-top: 20px}
+.section-terms-and-conditions .container div#navigation{margin-top: -1em;margin-bottom: 1em;}
+.section-terms-and-conditions #content .field-name-body {overflow-y:auto; min-height:200px; max-height:250px; border: 1px solid #ddd; padding: 0.5em;border-radius: 3px;}
+
+/*-----------Purchase Order----------*/
+div.po-status{text-align:left !important;display:inline-block;padding-left: 2.5em}
+.not-front #content .views-exposed-widgets{background: #c0dcf4; padding: 15px 15px 30px 15px;}
+.not-front #content .views-exposed-widgets .description {display:block;background: #c0dcf4;position:absolute; right:1.7em;}
+.not-front #content .views-exposed-widgets input,.not-front #content .views-exposed-widgets select{height:30px; border-radius:0; padding:0px 5px}
+.not-front #content .views-exposed-widgets #edit-po-status-wrapper{width:100%}
+.not-front #content .views-exposed-widgets .container-inline-date .form-item, .container-inline-date .form-item input {width:100%; background:url(../images/calendar-icon.png) no-repeat right;}
+.not-front #content .views-exposed-form .container-inline-date .date-padding{background:#fff; width:100%}
+.not-front #content #poSearch > div {text-align: right; padding: 2px 0 0; text-transform: uppercase;}
+.not-front #content #poSearch .view-header div {/*  padding: 0 20px; */} 
+.not-front #content #poSearch span {vertical-align: -webkit-baseline-middle; vertical-align: -moz-middle-with-baseline;}
+.not-front #content #poSearch a {color: #666666; text-decoration: none; padding: 0 20px;}
+.not-front #content #poSearch a:hover{text-decoration:underline; font-weight:bold;}
+.not-front #content #edit-agreement-terms{margin: 0;padding: 20px 0} 
+.not-front #content .ui-accordion .ui-accordion-content {padding: 10px 0}
+.not-front #content .view-purchase-order-internalusers .view-purchase-order-container .views-table thead tr th {background: #97caf5; color: #20398d; border-left: solid 1px #fff; vertical-align:top;} /*SM Admin/Purchasing/Treasury*/
+.not-front #content .view-purchase-order-internalusers .view-purchase-order-container .views-table thead tr th:first-child{border-left: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-internalusers .view-purchase-order-container .views-table tbody{border: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-internalusers .view-purchase-order-container .views-table tbody tr{border:none}
+.not-front #content .view-purchase-order-archive-internal-users .view-purchase-order-container .views-table thead tr th {background: #97caf5; color: #20398d; border-left: solid 1px #fff; vertical-align:top;} /*SM Admin/Purchasing/Treasury*/
+.not-front #content .view-purchase-order-archive-internal-users .view-purchase-order-container .views-table thead tr th:first-child{border-left: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-archive-internal-users .view-purchase-order-container .views-table tbody{border: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-archive-internal-users .view-purchase-order-container .views-table tbody tr{border:none}
+.not-front #content .view-purchase-order-archive .view-purchase-order-container .views-table thead tr th {background: #97caf5; color: #20398d; border-left: solid 1px #fff; vertical-align:top;} /*SM Admin/Purchasing/Treasury*/
+.not-front #content .view-purchase-order-archive .view-purchase-order-container .views-table thead tr th:first-child{border-left: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-archive .view-purchase-order-container .views-table tbody{border: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-archive .view-purchase-order-container .views-table tbody tr{border:none}
+.not-front #content .view-purchase-order-org-internal-users .view-purchase-order-container .views-table thead tr th {background: #97caf5; color: #20398d; border-left: solid 1px #fff; vertical-align:top;} /*SM Admin/Purchasing/Treasury*/
+.not-front #content .view-purchase-order-org-internal-users .view-purchase-order-container .views-table thead tr th:first-child{border-left: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-org-internal-users .view-purchase-order-container .views-table tbody{border: 1px solid #8391bb;}
+.not-front #content .view-purchase-order-org-internal-users .view-purchase-order-container .views-table tbody tr{border:none}
+.not-front #content .view-purchase-order .view-purchase-order-container .views-table thead tr th {background: #97caf5; color: #20398d; border-left: solid 1px #fff; vertical-align:top;} /*Vendor*/
+.not-front #content .view-purchase-order .view-purchase-order-container .views-table thead tr th:first-child{border-left: 1px solid #8391bb}
+.not-front #content .view-purchase-order .view-purchase-order-container .views-table tbody{border: 1px solid #8391bb;}
+.not-front #content .view-purchase-order .view-purchase-order-container .views-table tbody tr{border:none}
+.not-front #content #block-views-purchase-order-search  div.ui-accordion  > h3 > span {display:none;}
+.not-front #content #block-views-purchase-order-archive-search  div.ui-accordion  > h3 > span {display:none;}
+.not-front #block-views-purchase-order-search .view-content {border: 1px solid #808ebe; }
+.showHide{display:none}
+.poAccordBody{display:none;min-height:150px; max-height:150px;}
+.poAccordHeader{background:#d8def0; border-bottom:1px solid #ccc; margin:0}
+.poAccordHeader > a > div{color:#000;font-size:12px; text-align:left;font-family: 'myriad_web_proregular';}
+.ui-corner-all{-webkit-border-radius: 0 !important;-moz-border-radius: 0 !important;border-radius: 0 !important;}
+.ui-corner-top {-moz-border-radius-topleft: 0/*{cornerRadius}*/;-webkit-border-top-left-radius: 0/*{cornerRadius}*/;border-top-left-radius: 0/*{cornerRadius}*/;-moz-border-radius-topright: 0/*{cornerRadius}*/;-webkit-border-top-right-radius: 0/*{cornerRadius}*/;border-top-right-radius: 0/*{cornerRadius}*/;}
+.ui-corner-bottom {-moz-border-radius-bottomleft: 0/*{cornerRadius}*/;-webkit-border-bottom-left-radius: 0/*{cornerRadius}*/;border-bottom-left-radius: 0/*{cornerRadius}*/;-moz-border-radius-bottomright: 0/*{cornerRadius}*/;-webkit-border-bottom-right-radius: 0/*{cornerRadius}*/;border-bottom-right-radius: 0/*{cornerRadius}*/;}
+.ui-state-default, .ui-state-active, .ui-widget-content{border:none;}
+.page-purchase-order #content #views-exposed-form-purchase-order-search .views-submit-button, .page-purchase-order #content #views-exposed-form-purchase-order-search .views-reset-button {padding: 17px 0 0;}
+.view-purchase-order-container{border:1px solid #808ebe; padding: 15px; background: #d9e9f7}
+.page-manage-purchase-order #content .view-admin-manage-files form > div > fieldset legend{border:none;color:#20398d;font-size:15px; font-weight:bold;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;text-transform: uppercase;margin-bottom:-1.7em;}
+.page-manage-purchase-order #content .view-admin-manage-files form > div > fieldset > div.fieldset-wrapper {float: right; margin-bottom:0.5em;}
+.page-manage-purchase-order #content .view-admin-manage-files form > div > fieldset {margin-top:1em}
+.page-list-purchase-order-org #content #edit-datefrom-wrapper label, .page-list-purchase-order-org #content #edit-dateto-wrapper label{display:block}
+.page-list-purchase-order-org #content .views-submit-button span.date-label, .page-list-purchase-order-org #content .views-submit-button span.pono-label{display:none}
+.page-list-purchase-order-org #content span.list-header, .page-list-purchase-order-org #content span.details-header{display:block;color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-archive-list-purchase-order #content span.list-header, .page-archive-list-purchase-order #content span.details-header{display:block;color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-list-purchase-order-org #content form  div.form-actions input[type='submit']{display:none;}
+.page-list-purchase-order-org #content div.even {padding: 0 10px 0 0 !important;}
+.page-list-purchase-order #content div.even {padding: 0 10px 0 0 !important;}
+.page-archive-list-purchase-order #content div.even {padding: 0 10px 0 0 !important;}
+.page-list-purchase-order-org #content div.even form .smTable tbody tr td select{width:100%}
+.page-list-purchase-order #content span.list-header, .page-list-purchase-order #content span.details-header{display:block;color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-purchase-order #content .view-header > span, .page-purchase-order #content span.details-header{display:block;color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.openBody{padding-left: 2.5em !important}
+.purchaseOrderHeader{background: #20398d;border-bottom: 4px solid #8391bb;color: #fff;text-transform: uppercase;margin-bottom: -1px;}
+.purchaseOrderHeader > div {padding: 10px 15px;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users > div.view-content form > div > table.views-table > tbody > tr.showHide > td{padding:0;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users > div.view-content form > div > table.views-table > tbody > tr.showHide div.scrollable > table.po-lineno-table > thead tr td {text-align:center}
+.poHeader{cursor:pointer;}
+.poHeader:hover td{background: #5fa8e8;}
+#views-form-purchase-order-internalusers-search .smTable .poHeader{background:#d8def0;cursor:pointer;}
+#views-form-purchase-order-internalusers-search .smTable .poHeader > td{border:none}
+#views-form-purchase-order-internalusers-search .smTable .poHeader select.form-control{/* height:30px; */ width:95%; height: 20px; font-size: 12px; padding:0;}
+#views-form-purchase-order-internalusers-search > div > div#edit-actions{display:none;}
+#block-views-784ddd18cbfc36fcc97011e306b4e5dd .view-header{display:none}
+#views-form-purchase-order-internalusers-search #edit-actions > input {width:25%}
+
+/*------------Non-Purchase Order--------------*/
+.views-exposed-form .views-exposed-widget .form-submit{margin:0}
+
+/*------------Accordion--------------*/
+.page-non-po #content #views-exposed-form-non-po-page .views-submit-button, .page-non-po #content #views-exposed-form-non-po-page .views-reset-button {padding: 17px 0 0;}
+.ui-state-active, .ui-widget-content {background:#d9e9f7}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active{background:#97caf5}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {background:#d8def0}
+.ui-accordion-content .smTable tbody > tr > td {padding:5px 10px}
+.ui-accordion .ui-accordion-content {margin-bottom:0;}
+/* .tdWrapper{max-width: 400px;width: 415px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;} */
+div.poAccordBody table.smTable tbody tr.views-row td:last-child{max-width: 400px;width: 400px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;word-wrap: break-word; -ms-text-overflow: ellipsis}
+
+/*-----------Table Draggable--------*/
+.draggable a.tabledrag-handle{margin-left:0; height:13px; font-size:24px;}
+table#menu-overview.tabledrag-processed tbody tr td:first-child{text-align:left}
+
+/*-----------Generic----------*/
+.not-front .mainHolder{background:#fff;  padding: 15px;  -webkit-box-shadow: 0px 0px 8px -1px rgba(204,204,204,1); -moz-box-shadow: 0px 0px 8px -1px rgba(204,204,204,1); box-shadow: 0px 0px 8px -1px rgba(204,204,204,1);  margin-top:2px }
+.page-user-password .mainHolder{background:none;  padding: 0;  box-shadow:none; margin-top:1px}
+.loginTitle {text-align: center; font-weight: bold; color:#0067be; text-transform: uppercase; font-size: 25px;}
+.btnPadding{padding:17px 0 0 !important}
+.smTable {width:100%}
+.smTable thead > tr > th {background:#20398d;color:#fff; padding:5px; text-align:center; text-transform:uppercase; font-weight:500;font-size:12px; vertical-align:top} 
+.smTable thead > tr > th > a {color: #fff}
+.smTable tbody > tr{text-align:center}
+.smTable tbody > tr.views-row:hover {background:#badaf5}
+.smTable tbody > tr.odd{background:#f1f1f1}
+.smTable tbody > tr.even{background:#d8def0}
+.view-content .views-form table.views-table tbody > tr.odd{background:#d8def0}
+.view-content .views-form table.views-table tr td {border: none;}
+.page-archive-list-purchase-order div.even .view-purchase-order-archive-internal-users .view-content table.views-table tr td {border: none;} 
+.view-content .views-form table.views-table tbody > tr.even,.view-content .views-form table.views-table tbody > tr.odd {border-bottom:1px solid #fff;}
+.poAccordBody .smTable tr:first-child td {color: #20398d; text-transform: uppercase;}
+.po-lineno-table thead tr td{color: #20398d; text-transform: uppercase;}
+.no-padding{padding:0 !important;}
+.no-margin{margin:0 !important}
+.nav-tabs > li > a{background:#20398d; color:#fff}
+.nav-tabs > li > a:hover{opacity:0.9}
+.nav-tabs > li.active-trail > a, .nav-tabs > li > a:hover{background:#fff; cursor:default; border-bottom-style:solid; border-width:1px;color:#20398d; font-weight: bold;}
+.form-item label {display: inline-block;font-weight: bold; width:17%}
+.upperBox {display: inline-block; width: 100%;}/*width: 80%*/
+.views-exposed-form .views-exposed-widget{padding:0; width:100%}
+.accordHeader{background:#20398d; padding: 10px; border-right: 1px solid #fff; color:#fff;text-transform:uppercase; text-align: left; border-bottom: 4px solid #8391bb} 
+.view-filters form h3 {margin: 0px; line-height: 50px; border-right: 1px solid rgb(154, 190, 221); text-align: center;color:#20398d; font-size:14px; text-transform: uppercase; font-weight: bold;}
+.textInline{display:inline-block; text-align:center;}
+.views-exposed-form label{margin-bottom:0}
+.form-actions input[type="submit"], .form-actions input[type="button"]{margin-right: 0.2em}
+.form-actions{text-align: center; margin-bottom: 0}
+.no-results{padding:5px;}
+.pending-or-notice{padding:5px;}
+.not-front #content div.view-content > form.confirmation div > .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+.not-front #content form.confirmation div > .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+.vbo-views-form legend{display:none}
+#block-views-purchase-order-search {padding: 0 10px 0 0 !important;}
+#block-views-purchase-order-archive-search {padding: 0 10px 0 0 !important;}
+#poSearch{margin-bottom: -26px; z-index: 1}
+#edit-actionviews-bulk-operations-delete-item{margin-top:1em}
+table.views-table > tbody > tr > td > table > thead > tr {border:none; background-color:transparent}
+table.views-table > tbody > tr > td > table > thead > tr > td {border:none}
+table.views-table > tbody   {}
+table.views-table > tbody > tr > td > table > tbody {border:none}
+table.views-table > tbody > tr > td > table > tbody > tr > td {border:none;}
+table.views-table > tbody > tr > td > table > tbody > tr > td > a {color:#000;}
+table.views-table > tbody > tr > td > table > tbody > tr:hover {background:#badaf5}
+a{outline:none !important}
+body:not(.page-list-purchase-order-org ):not(.page-archive-list-purchase-order):not(.page-archive-purchase-order) table.views-table tbody tr:hover td {background: #c2cce9;}
+div.view-content > form.confirmation > div > div.item-list > h3 {font-size:14px}
+
+/*----------Date Picker------------*/
+.ui-widget-header{background:none;border:none}
+#ui-datepicker-div {background:#d9e9f7;border:1px solid #bac6d0;border-radius:3px !important}
+td.ui-datepicker-current-day .ui-state-active{border:1px solid #428bca !important;background: #428bca !important; color: #fff !important}
+td.ui-datepicker-today .ui-state-highlight{border:1px solid #428bca !important;color: #134e80}
+.ui-state-default:hover{background: #5fa8e8 !important; border: 1px solid #5fa8e8;color: #fff !important}
+
+/*----------Table Accordion------------*/
+table.views-table > tbody > tr > td > div > table > thead > tr {border:none; background-color:transparent}
+table.views-table > tbody > tr > td > div > table > thead > tr > td {border:none}
+table.views-table > tbody > tr > td > div > table > tbody > tr > td {border:none;}
+table.views-table > tbody > tr > td > div > table > tbody{border-top:none}
+table.views-table > tbody > tr > td > div > table > tbody > tr > td > a {color:#000;}
+table.views-table > tbody > tr > td > div > table > tbody > tr:hover {background:#badaf5}
+div.scrollable{width: 100%;max-height: 150px;min-height: 0; margin: 0; padding: 0; overflow-y: auto;}
+.page-purchase-order .ui-accordion-icons .ui-accordion-header a {padding-left: 0}
+
+/*----------Custom Button-------*/
+.not-front #content .form-actions > a:hover{text-decoration: none}
+.btn-primary{border-radius: 3px !important; border: none !important; background: #3298fd !important; /* Old browsers */ background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important; /* FF3.6+ */ background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important; /* Chrome,Safari4+ */ background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important; /* Chrome10+,Safari5.1+ */ background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important; /* Opera 11.10+ */ background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important; /* IE10+ */ background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important; /* W3C */ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important; /* IE6-9 */}
+.not-front .form-actions input[id='edit-cancel']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.not-front .form-actions input[id='edit-delete']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.not-front #content .form-actions > a{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.not-front #content .form-actions > input[type="submit"]{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.not-front #content .views-exposed-form div.views-submit-button input[type='submit'], .not-front #content .views-exposed-form div.views-reset-button input[type='submit']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-admin-structure-menu #content ul.action-links li a{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-admin-structure-menu #content ul.action-links li a:hover{text-decoration:none;}
+.page-admin-structure-menu #content ul.action-links{list-style-type: none; padding:0; margin:0}
+
+/*----------Payment Voucher--------*/
+.page-payment-voucher #content #views-exposed-form-payment-voucher-page h3 {margin: 0px; line-height: 50px; border-right: 1px solid rgb(154, 190, 221); text-align: center;color:#20398d; font-size:14px; text-transform: uppercase; font-weight: bold;}
+.page-payment-voucher #content #views-exposed-form-payment-voucher-page .views-submit-button,
+.page-payment-voucher #content #views-exposed-form-payment-voucher-page .views-reset-button {padding:17px 0 0} 
+.view-display-id-page table > tbody > tr > .views-field-nothing > a {}
+.not-front #content > h1 {color:#20398d; font-size:15px; font-weight:bold; text-transform:uppercase; padding: 10px 0 15px;}
+.front #content > h1,
+.page-terms-and-conditions #content > h1 {display:none}
+
+/*----------Table Icon--------*/
+.page-manage-exception #content .view-admin-manage-files .views-table tr td.views-field-php{padding-left:5em}
+.page-manage-exception #content .view-admin-manage-files .views-table tr td.views-field-php .pdf{float: left;clear: none; margin-right:1em}
+.page-manage-exception #content .view-admin-manage-files .views-table tr td.views-field-php .csv{float: left;clear: none;}
+.views-table tr td.views-field-nothing a[href$=".pdf"] {background:url(../images/pdf-icon.png) no-repeat; width: 24px; height: 24px;display: inline-block; text-indent: -9999px;margin-right:0.2em;}
+.views-table tr td.views-field-field-pv-csv a {background:url(../images/xcel-icon.png) no-repeat; width: 20px; height: 24px;display: inline-block; text-indent: -9999px}
+.views-table tr td.views-field-field-pv-csv .file-icon {display: none;}
+.views-table tr td.views-field-php a[href*="csv"] {background:url(../images/xcel-icon.png) no-repeat; width: 20px; height: 24px;display: inline-block; text-indent: -9999px}
+.views-table tr td.views-field-php div.archive-files {color:transparent}
+.views-table tr td.views-field-php .archive-files a[href$=".pdf"]{background:url(../images/pdf-icon.png) no-repeat; width: 24px; height: 24px;display: inline-block; text-indent: -9999px}
+.views-table tr td.views-field-php .archive-files a[href*="csv"]{background:url(../images/xcel-icon.png) no-repeat; width: 20px; height: 24px;display: inline-block; text-indent: -9999px}
+.views-table tr td.views-field-edit-node a {background:url(../images/edit-icon.png) no-repeat; width: 24px; height: 24px;display: inline-block; text-indent: -9999px}
+.views-table tr td.views-field-nothing-1 a[href*="edit"] {background:url(../images/edit-icon.png) no-repeat; width: 24px; height: 24px; display: inline-block; text-indent: -9999px;}
+.views-table tr td.views-field-edit-term a {background:url(../images/edit-icon.png) no-repeat; width: 24px; height: 24px; display: inline-block; text-indent: -9999px;}
+.views-table tr td.views-field-nothing a[href*="delete"]{background:url(../images/delete-icon.png) no-repeat; width: 24px; height: 24px; display: inline-block; text-indent: -9999px;}
+.views-table tr td.views-field-php .pdf a{background:url(../images/pdf-icon.png) no-repeat; width: 24px; height: 24px; display: inline-block; text-indent: -9999px;}
+.views-table tr td.views-field-php a.edit{background:url(../images/edit-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-php a.delete{background:url(../images/delete-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing-1 a[href*="goods-receipt"]{background:url(../images/view-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing-2 a[href*="invoice-receipt"]{background:url(../images/view-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing-3 a[href*="payment-details"]{background:url(../images/view-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-php a[href*="goods-receipt"]{background:url(../images/view-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-php-1 a[href*="invoice-receipt"]{background:url(../images/view-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-php-2 a[href*="payment-details"]{background:url(../images/view-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing a[href*="csv"]{background:url(../images/xcel-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing-1 a[href*="csv"]{background:url(../images/xcel-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-field-bir-pdf a[href$=".pdf"]{background:url(../images/pdf-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing a[href*="housekeeping"]{background:url(../images/update-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.views-table tr td.views-field-nothing div.csv a{background:url(../images/xcel-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right: 0.2em;}
+.views-table tr td.views-field-nothing div.pdf a{background:url(../images/pdf-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right: 0.2em;}
+.csv, .pdf{display:inline-block !important; margin-right: 5px;}
+.export-csv, .export-xls{display:inline-block; margin-right: 5px;}
+.views-table tr td.views-field-nothing div.export-xls a{background:url(../images/xls-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right: 0.2em;}
+.views-table tr td.views-field-nothing div.export-csv a{background:url(../images/xcel-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right: 0.2em;}
+.views-table tr td.download div.export-xls a{background:url(../images/xls-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right: 0.2em;}
+.views-table tr td.download div.export-csv a{background:url(../images/xcel-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px; margin-right: 0.2em;}
+.page-notifications #content .views-table tr td.views-field-nothing a.delete, .page-list-notifications #content .views-table tr td.views-field-nothing a.delete{background:url(../images/delete-notif-icon.png) no-repeat; width:16px; height:16px; display:inline-block; text-indent:-9999px;}
+.page-other-accounts #content .views-table tr td.views-field-nothing a.delete-link{background:url(../images/delete-notif-icon.png) no-repeat; width:16px; height: 16px; display:inline-block; text-indent:-9999px; }
+.page-global-settings-file-sync #content .views-table tr td.views-field a{background:url(../images/update-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px;}
+.page-list-payment-voucher #content .views-table tr td.views-field-nothing-1 a, .page-payment-voucher #content .views-table tr td.views-field-nothing-1 a[href*="csv"]{background:url(../images/xcel-icon.png) no-repeat; width:20px; height:24px; display:inline-block; text-indent:-9999px;}
+table#menu-overview tr td.menu-operations a[href$="edit"]{background:url(../images/edit-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+table#menu-overview tr td.menu-operations a[href$="delete"]{background:url(../images/delete-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+.page-node-webform-results #content table.sticky-table.smTable tbody tr td a[href*="delete"]{background:url(../images/delete-icon.png) no-repeat; width:24px; height:24px; display:inline-block; text-indent:-9999px; margin-right:0.2em;}
+
+/*-----------Vendor Information Sheet--------*/
+.section-vendor-information-sheet #content header .submitted{display:none}
+.section-vendor-information-sheet #content form > div > h3 {display:none}
+.section-vendor-information-sheet #content form > div > div > h2 {background:#408dce; border-color:#20398d; border-style:solid; border-width:0 0 0 20px; color:#fff; text-transform:uppercase; padding:10px 15px; font-size:13px}
+.section-vendor-information-sheet #content form > div > div > div.group-label {font-weight:bold;}
+.section-vendor-information-sheet #content form > div > div > .form-control{width:25%; display:inline-block}
+.section-vendor-information-sheet #content form > div > div > .form-control[type='submit']{width: auto;}
+.section-vendor-information-sheet #content form > div > div > div#edit-submitted-business-organization-type{display: inline-block; width: 80%;}
+.section-vendor-information-sheet #content form > div > div.webform-component-number > label, .section-vendor-information-sheet #content form > div > div.webform-component-email > label, .section-vendor-information-sheet #content form > div > div.webform-component--contact-position > label,
+.section-vendor-information-sheet #content form > div > div.webform-component--contact-name > label {padding-left:15px}
+.section-vendor-information-sheet #edit-submitted-vendor-information-business-organization-type{display:inline}
+.section-vendor-information-sheet #edit-submitted-vendor-information-business-organization-type > div {margin:0 20px;display:inline}
+.section-vendor-information-sheet #edit-submitted-vendor-information-business-organization-type > div > input{margin:0 20px;display:inline}
+.section-vendor-information-sheet .webform-component--questionnaire label{width:100%;}
+.section-vendor-information-sheet #content form > div > fieldset.webform-component--questionnaire > div > fieldset > div.fieldset-wrapper > div > input{width:100%}
+.section-vendor-information-sheet #content form > div > fieldset.webform-component--questionnaire > div > fieldset > div.fieldset-wrapper > div > label{text-align:center;}
+.section-vendor-information-sheet #webform-client-form-39 .form-item{margin:0 0 10px 0;}
+.section-vendor-information-sheet #content form div div.webform-component--organization select#edit-submitted-organization{margin-top: -1em !important;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);-webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;width:25%}
+.section-vendor-information-sheet #content form div div.webform-component--company-address input{width: 75% !important }
+.section-vendor-information-sheet #content form div div.webform-component--company-name input{width: 50% !important }
+.section-vendor-information-sheet #content form div div.webform-component--required-documents-text ul{list-style-type: square;}
+.section-vendor-information-sheet #content form div div.webform-component--required-attachments-text ul{list-style-type: square}
+.section-vendor-information-sheet #content form div div.webform-component--required-attachments-text ul ul{list-style-type: disc;}
+.section-vendor-information-sheet #content form .form-item-captcha-response input.error + .description{color:#FF0000; font-weight: bold;}
+.section-vendor-information-sheet #webform-client-form-39 > div > div.form-actions > input{margin-right:5px}
+.section-vendor-information-sheet #content h1#page-title{text-align:center; font-size: 17px; margin-bottom: 0.8em;}
+.section-vendor-information-sheet #content form.webform-client-form fieldset.webform-component--questionnaire > div.fieldset-wrapper > fieldset > legend{display:none}
+.section-vendor-information-sheet #content form.webform-client-form fieldset.webform-component--questionnaire > legend{background: #408dce; border-left: 20px solid #20398d; padding: 8px 14px; text-transform: uppercase; color: #fff; font-size: 13px;border-bottom: none; font-family: "Helvetica Neue",Helvetica,Arial, sans-serif; margin-bottom:10px}
+.section-vendor-information-sheet #content form.webform-client-form fieldset.webform-component--questionnaire{display:inline-block;}
+.section-vendor-information-sheet #content div.error, .section-vendor-information-sheet #content div.status {position: relative;width: 100%; top:0; margin:0 0 1.5em 0;}
+ .captcha {border-top: 1px solid #ccc; border-bottom: 1px solid #ccc}
+ .captcha > legend{display:none}
+ .captcha > div {text-align: center; border: 1px solid; width: 30%; margin: 15px  auto}
+ .captcha > div > .form-item-captcha-response label{width:100%}
+ .captcha > div > .form-item-captcha-response input{width:50%; margin:auto}
+.page-vendor-list #content #views-exposed-form-admin-manage-users-page .views-submit-button,
+.page-vendor-list #content #views-exposed-form-admin-manage-users-page .views-reset-button {padding:17px 0 0;}
+.page-user-edit #content #user-profile-form .form-item-current-pass div.description{display:none}
+.page-user-edit #content #user-profile-form .form-item-current-pass{margin: 0 !important}
+.page-user-edit #content #user-profile-form .form-type-password-confirm{margin: 0.4em 0 1.5em !important;}
+.page-user-edit #content #user-profile-form div.form-item-temp-usertype > input#edit-temp-usertype{display: inline-block;width: 25%;}
+.form-label{width:34% !important;}
+.form-input{width:50% !important;}
+
+/*-----------Vendor Other Acount----------*/
+.page-vendor-account #content #smv-vendor-accounts-edit-form > div > div > input[type="text"],
+.page-vendor-account #content #smv-vendor-accounts-form > div > div > input[type="text"]{width: 35% !important; display: inline-block !important}
+.page-vendor-account #content #smv-vendor-accounts-delete-confirm div.form-actions{border-top:1px solid #ccc; padding-top:1em;}
+.page-vendor-account #content #smv-vendor-accounts-form > div > div.form-actions{border-top:1px solid #ccc; padding-top:1em;}
+
+/*-----------Notification-----------*/
+.page-notifications table.views-table > tbody > tr > td > a , .page-list-notifications table.views-table > tbody > tr > td > a {color: #333;}
+.page-notifications .views-exposed-form .views-exposed-widget{padding:0; width:65%; display:table}
+.page-notifications .views-exposed-form > div > div > .views-exposed-widget{width:100%}
+.page-notifications .views-exposed-form .views-exposed-widget > label{display: block; vertical-align: middle}
+.page-notifications #content .views-exposed-widgets { background: #c0dcf4; padding: 15px; margin: 15px 0; }
+.page-notifications #content .view-display-id-page > .view-footer {border: 1px solid #ccc; background: #d9e9f7; padding: 1.5em;height: 238px;overflow-y: auto;}
+.page-notifications #content .view-user-notifications > .view-content {padding-right:1em !important}
+.page-notifications #content .view-user-notifications > .view-footer .views-field-date-sent span.field-content, .page-notifications #content .view-user-notifications > .view-footer .views-field-subject span.field-content{font-weight:bold;}
+.page-notifications #content #views-exposed-form-notifications-page .views-submit-button {width:100% !important; padding:0}
+.page-notifications #content .view-notifications .view-footer .views-field-sent-date span.field-content{font-weight:bold;}
+.page-notifications #content .view-notifications .view-footer .views-field-body{margin-top:1em;}
+.page-list-notifications #content .view-user-notifications > .view-footer {border: 1px solid #ccc; background: #d9e9f7; padding: 1.5em !important;height: 238px;overflow-y: auto;}
+.page-list-notifications #content .view-user-notifications > .view-content {padding-right:1em !important}
+.page-list-notifications #content .view-user-notifications > .view-footer .views-field-date-sent span.field-content, .page-list-notifications #content .view-user-notifications > .view-footer .views-field-subject span.field-content{font-weight:bold;}
+.notif-new{font-weight:bold}
+.notif-viewed{font-weight:normal}
+.not-front #content .view-user-notifications table.smTable tbody tr.notif-new td:first-child  label{margin-right:5px}
+.not-front #content .view-user-notifications table.smTable tbody tr td:first-child{text-align:left}
+.not-front #content .view-user-notifications table.smTable tbody tr.notif-viewed td:first-child{padding-left:46px;}
+.not-front #content .view-user-notifications table.smTable tbody tr.notif-new td:first-child a{padding-left:42px; display:block} 
+.not-front #content .view-user-notifications table.smTable tbody tr.notif-new td:first-child label{float:left}
+.views-field-subject{font-size:13px}
+.views-field-date-sent{font-size:13px;padding-bottom: 1em;border-bottom: 1px dotted;}
+.views-field-body{padding-top: 1em; font-size:13px;}
+tbody .views-field-subject {font-size:12px;}
+tbody .views-field-date-sent {font-size:12px;}
+
+/*--------BIR Form----------*/
+.page-bir-form-2307 .views-submit-button,
+.page-bir-form-2307 .views-reset-button{padding:22px 0}
+.page-bir-form-2307 #content #views-exposed-form-bir-page .views-submit-button, .page-bir-form-2307 #content #views-exposed-form-bir-page .views-reset-button {padding: 17px 0 0;}
+
+/*--------User Profile-----------*/
+.page-user-edit #content #user-profile-form > div > div  > div > h3 > span {font-size: 15px; font-weight: bold; color: #333;}
+.page-user-edit #content #user-profile-form > div > div > h2 {background:#408dce; border-left:20px solid #20398d;padding:0 0 10px}
+.page-user-edit #content #user-profile-form > div > div > h2 > span{color:#fff; text-transform:uppercase; padding-left:15px; font-size:13px; font-weight:bold}
+.page-user-edit #content #user-profile-form h1{margin:0; color:#20398d; font-size:15px; font-weight:bold;padding:20px 0 0 }
+.page-user-edit #content #user-profile-form .group-user-vendorinfo-contactperson label{width:33% !important}
+.page-user-edit #content #user-profile-form .group-user-vendorinfo-contactperson input[type='text']{width:54% !important; display:inline}
+.page-user-edit #content #user-profile-form .group-user-information input{width:25%; display:inline-block}
+.page-user-edit #content #user-profile-form div.group-user-vendorinfo > h2 , .page-user-edit #content #user-profile-form div.group-user-information > h2 {margin-top: 0;}
+.page-user-edit #content h1#page-title{width: 50%;}
+.page-user-edit .confirm-parent, .password-parent {width:100%}
+.labelInput {width:30% !important}
+.addTextInput{width:80% !important}
+.textInput{width:25% !important; display:inline-block !important}
+
+/*-----SM Admin----*/
+.not-front #content .views-submit-button,
+.not-front #content .views-reset-button{width: 48%; float:left;padding: 17px 0 0;}
+.not-front #content .views-submit-button{margin-right:5px;}
+.page-settings-ldap #content #smcfb-ldap-settings-form div h2{background: #408dce; border-left: 20px solid #20398d; padding: 14px; text-transform: uppercase; color: #fff; font-size: 13px; font-weight: bold;}
+.page-settings-ldap #content #smcfb-ldap-settings-form div #basedn-fieldset-wrapper fieldset legend{background: #408dce; border-left: 20px solid #20398d; padding: 12px 14px; text-transform: uppercase; color: #fff; font-size: 13px; font-weight: bold; border-bottom: none; font-family: "Helvetica Neue",Helvetica,Arial, sans-serif; margin-bottom:0}
+.page-settings-ldap #content #smcfb-ldap-settings-form div #basedn-fieldset-wrapper{border-bottom: 1px solid #ccc}
+.page-settings-ldap #content #smcfb-ldap-settings-form div div.form-type-textfield input[type='text']{width: 50% !important; display:inline-block !important}
+.page-settings-ldap #content #smcfb-ldap-settings-form div #basedn-fieldset-wrapper fieldset .fieldset-wrapper .form-item input[type='text']{display:inline-block; width:50%; height:34px; padding:6px 12px; font-size:14px; line-height: 1.428571429; color:#555; vertical-align:middle; border:1px solid #bac6d0; border-radius:4px; -webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075); box-shadow:inset 0 1px 1px 0 rgba(0,0,0,0.075); -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;}
+.settings-form-action{width: 67%; text-align: right;}
+.page-settings-ldap #content #smcfb-ldap-settings-form div #basedn-fieldset-wrapper fieldset .fieldset-wrapper{padding-bottom: 15px;}
+
+/*-----LDAP Add User----*/
+.ldapTable{width:30% !important; margin-top:-1em !important}
+.ldapTable tbody{border-top: none !important}
+.ldapTable tr{background-color:transparent !important; border-bottom: none !important; text-align:left !important}
+.ldapTable td{padding: 6px 0 !important}
+.ldapTable tr td:first-child{font-weight: bold;}
+.page-ldap-adduser #content #smv-ldap-adduser-form div .form-item-smv-username input[type='text']{width:35%;display:inline-block}
+.page-ldap-adduser #content #smv-ldap-adduser-form input[id='edit-smv-username-next']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-ldap-adduser #content #smv-ldap-adduser-form > div > div.form-type-select > select{display: block;width: 30%;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);-webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;}
+.page-ldap-adduser #content #smv-ldap-adduser-form .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+
+/*-----Archive-------*/
+.page-archive #content #views-exposed-form-user-archive-page .views-submit-button, .page-archive #content #views-exposed-form-user-archive-page .views-reset-button {padding: 17px 0 0;}
+.page-archive-purchase-order #content  div.view-header > span, .page-archive-purchase-order #content span.details-header{display:block;color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-archive-purchase-order #content #block-views-purchase-order-archive-search > div.view-purchase-order-archive > .view-content{/* padding-top:40px; */}/*BUG HEADER NOT SHOWING*/
+.not-front #block-views-purchase-order-archive-search .view-content {border: 1px solid #808ebe; }
+
+/*-------Footer-------------*/
+.page-user-password .footer-bg {display:none}
+.not-front #footer {background-color: #e9e9e9; width:100%;height:105px;position:absolute; bottom:0}
+.not-front .footer-bg{background:#20398d; height:35px; width:100%; position:absolute; bottom:0; }
+#footer .block-menu { display:none }
+
+/*-------Dialog Box---------*/
+#cboxContent {font: 12px "Lucida Grande", Verdana, Arial, sans-serif;}
+#cboxContent article div.field-name-body{padding:1em}
+
+/*-------User Types--------*/
+.page-usertype #content #smv-usertype-form > div > div.form-userType{padding-top: 1em;border-top:1px solid #ddd}
+.page-usertype #content #smv-usertype-form div .form-item-name input[type='text']{width:35%; display:inline-block}
+.page-usertype #content #smv-usertype-form label.option, .page-usertype #content #smv-usertype-form div > span{font-weight: bold;}
+.page-usertype #content #smv-usertype-delete-form > div > .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+.page-usertype #content #smv-usertype-form input[id='edit-submit']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-usertype #content #smv-usertype-form div.userAccessContainer span{font-weight:normal; font-size: 1.1em}
+.page-usertype #content #smv-usertype-form div.po-org-wrapper {margin-left: 2.5em;margin-top:-1em}
+.page-usertype #content #smv-usertype-form div.po-org-wrapper div.form-item-smv-po-change-status-org > label {width:30%}
+.page-usertype #content #smv-usertype-form div.po-org-wrapper div#edit-smv-po-change-status-org > div.form-type-checkbox{display:inline-block}
+.page-usertype #content #smv-usertype-form div.po-org-wrapper div#edit-smv-po-change-status-org > div.form-type-checkbox input[type="checkbox"]{margin:0;}
+.page-usertype #content #smv-usertype-form div.po-org-wrapper div#edit-smv-po-change-status-org > div.form-type-checkbox label.option{padding-right:1em}
+.userAccessContainer{height:200px; overflow-y: auto; border: 1px solid #ddd; padding: 0 1.5em; border-radius: 5px}
+
+/*-------Manage PO Files-----*/
+.page-manage-files-purchase-order #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-purchase-order #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-manage-files-purchase-order #content table.smTable tbody tr td.views-field-field-po-status-edit select{width:100px;}
+.page-manage-files-purchase-order #content .form-actions{display:none;}
+.page-manage-files-purchase-order div.ui-widget-overlay{background:#000; opacity:0.85;}
+.page-manage-files-purchase-order div.ui-widget-content{background: #fff;}
+.page-manage-files-purchase-order div.ui-corner-all{border-radius: 5px !important;}
+.page-manage-files-purchase-order div.ui-dialog-titlebar a.ui-dialog-titlebar-close{display:none}
+.page-manage-files-purchase-order div.ui-dialog-buttonset button{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Manage Goods Receipt-----*/
+.page-manage-files-goods-receipt #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-goods-receipt #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Manage Invoice Receipt-----*/
+.page-manage-files-invoice-receipt #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-invoice-receipt #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Manage Payment Details-----*/
+.page-manage-files-payment-details #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-payment-details #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Manage Non PO-----*/
+.page-manage-files-nonpo #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-nonpo #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Manage Payment Voucher-----*/
+.page-manage-files-payment-voucher #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-payment-voucher #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Manage BIR Form-----*/
+.page-manage-files-bir #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-files-bir #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*-------Pending OR-----*/
+.page-pending-or #content > div.view-pending-or > .view-footer {text-align:center}
+.page-pending-or #content > div.view-pending-or > .view-footer > span > a{margin-top:1em;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-pending-or #content > div.view-pending-or > .view-footer > span > a:hover{text-decoration:none}
+
+/*-------Vendor List-----*/
+.page-vendor-list #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-vendor-list #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-vendor-list #content table.views-table tbody tr td.views-field-field-vendor-name, .page-vendor-list #content table.views-table tbody tr td.views-field-field-vendor-alias, .page-vendor-list #content table.views-table tbody tr td.views-field-mail, .page-vendor-list #content table.views-table tbody tr td.views-field-field-vendor-email2{text-align:left}
+
+/*-------Payment List Report-----*/
+.page-reports-payment-list #content table.views-table tbody tr td.views-field-field-vendor-name{text-align:left}
+
+/*-------Company Users-----*/
+.page-company-users #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-company-users #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-company-users #content table.views-table tbody tr td.views-field-name, .page-company-users #content table.views-table tbody tr td.views-field-mail{text-align:left}
+.page-user-edit #content #user-profile-form div > fieldset#edit-ckeditor{display:none;}
+.page-user-edit #content form div.form-item-user-rid select#edit-user-rid{display: inline-block;width: 25%;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.42857;color: #555;vertical-align: middle;background-color: #FFF;background-image: none;border: 1px solid #BAC6D0;border-radius: 4px;box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;}
+
+/*-------Exception Management-----*/
+.page-manage-exception #content span.fieldset-legend{color: #20398d;font-size: 15px;font-weight: bold;text-transform: uppercase;padding: 10px 0 15px;font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;}
+.page-manage-exception #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-manage-exception #content table.views-table tbody tr td.views-field-title, .page-manage-exception #content table.views-table tbody tr td.views-field-message{text-align: left}
+
+/*-------Housekeeping------*/
+.page-global-settings-housekeeping input[type='text']{width:32%; display:inline-block}
+.page-global-settings-housekeeping #content #smv-global-settings-setup-edit-form > div > input[type='submit']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-global-settings-housekeeping #content #smv-global-settings-setup-edit-form .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+
+/*-------Announcement-----*/
+.not-front #content #announcement-node-form div .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+.not-front #content #announcement-node-form > div > div#edit-body fieldset.filter-wrapper{display:none;}
+.not-front #content #announcement-node-form div.form-item-title input#edit-title{width:58%;display:inline-block;}
+.not-front #content #announcement-node-form div#edit-field-announ-vendor-display select#edit-field-announ-vendor-display-und{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+.not-front #content #announcement-node-form div#edit-field-announ-internal-display select#edit-field-announ-internal-display-und{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+.not-front #content #announcement-node-form div#edit-field-announ-login-display select#edit-field-announ-login-display-und{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+.section-announcements #content #page-title{text-align:center;font-size: 17px; margin-bottom: 0.5em;}
+.section-announcements #content article .field-name-field-announ-php > .field-items{text-align:center}
+.section-announcements #content .field-name-body {overflow-y:auto; min-height:200px; max-height:250px; border: 1px solid #ddd; padding: 0.5em;border-radius: 3px;}
+
+/*-------Terms & Conditions-------*/
+.not-front #content #terms-node-form div .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+.not-front #content #terms-node-form > div > div#edit-body fieldset.filter-wrapper{display:none;}
+.not-front #content #terms-node-form div.form-item-title input#edit-title{width: 58%;display: inline-block;}
+.not-front #content #terms-node-form div#edit-field-terms-vendor-display select#edit-field-terms-vendor-display-und{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+.not-front #content #terms-node-form div#edit-field-terms-internal-display select#edit-field-terms-internal-display-und{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+.not-front #content .field-items #rw-terms-accept a{margin-right:5px;}
+.section-terms-and-conditions #content #page-title{text-align:center; font-size: 17px; margin-bottom: 0.5em;}
+.section-terms-and-conditions #content article .field-name-field-terms-php > .field-items{text-align:center}
+
+/*-------Manage Security Questions-----*/
+.page-global-settings-security-questions #content fieldset div.fieldset-wrapper input[id='edit-actionviews-bulk-operations-delete-item']{padding: 5px 10px !important;font-size: 12px !important;line-height: 1.5 !important;border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;margin-bottom: 0.5em;font-weight: normal;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+.page-global-settings-security-questions #content table.views-table tbody tr td.views-field-name{text-align:left}
+
+/*-------My Account------*/
+.page-user-edit #content h1#page-title{display:block}
+.section-user #content form#user-profile-form #edit-account div.password-strength{width: 17em;position: absolute;float: left;margin-top: 0.5em;margin-left: 48em;}
+.section-user #content form#user-profile-form #edit-account div.password-confirm{width: 17em;position: absolute;float: left;margin-top: 0.5em;margin-left: 48em;} 
+.section-user #content form#user-profile-form #edit-account div.password-confirm span.ok{color:#47C965;text-transform:uppercase;font-weight: bold;}
+.section-user #content form#user-profile-form #edit-account div.password-confirm span.error{color:#FF0000;text-transform:uppercase;font-weight: bold;}
+.section-user #content form#user-profile-form .form-item-captcha-response input.error + .description{color:#FF0000; font-weight: bold;}
+.section-user #content form#user-profile-form div.otheraccounts{text-align: right;margin-top:-3em;}
+
+/*-------Footer Links-------*/
+.page-admin #content form table thead tr th.checkbox{display:table-cell; text-align:left;}
+.page-admin #content form#menu-edit-item .form-actions{padding-top: 1em;border-top:1px solid #ddd}
+
+/*-------Sync Settings-----*/
+.page-admin-config-system-cron #content form div.vertical-tabs{margin:0; border:none}
+.page-admin-config-system-cron #content form div.vertical-tabs ul.vertical-tabs-list{display:none}
+.page-admin-config-system-cron #content form div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane{padding:0}
+.page-admin-config-system-cron #content form div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane legend{display:none}
+.page-admin-config-system-cron #content form div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane div.fieldset-wrapper div.fieldset-description{display:none}
+.page-admin-config-system-cron #content form div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane div.fieldset-wrapper div.form-type-select{margin: 1em 0;}
+.page-admin-config-system-cron #content form div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane select{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+
+/*-------Email Templates--------*/
+.not-front #rules-form-wrapper form > div > fieldset  legend{display:none;}
+.not-front #rules-form-wrapper form > div > fieldset.form-wrapper > div.fieldset-wrapper > fieldset.collapsible + div.form-item-parameter-subject-settings-subject {margin-top:4em;}
+.not-front #rules-form-wrapper form > div > fieldset.form-wrapper > div.fieldset-wrapper > fieldset.collapsible a.fieldset-title{color: #fff}
+.not-front #rules-form-wrapper form > div > div.form-actions{padding-top: 1em;border-top:1px solid #ddd}
+.not-front #rules-form-wrapper form div fieldset div.fieldset-wrapper input[type='submit']{display:none;}
+.not-front #rules-form-wrapper form#rules-ui-edit-element div.fieldset-wrapper input[type='text']{width:82%; display:inline-block}
+.not-front #rules-form-wrapper form .rules-autocomplete{width: 36%;display: inline-block;}
+.not-front #rules-form-wrapper form .rules-autocomplete > .rules-autocomplete-button {top: -1px;height: 34px;}
+.not-front #rules-form-wrapper form #edit-parameter-type .form-item-parameter-type-settings-type label {vertical-align:top;}
+.not-front #rules-form-wrapper form #edit-parameter-type .form-item-parameter-type-settings-type select {width:32%;border: 1px solid #bac6d0;border-radius: 4px;padding: 6px 8px;font-size: 13px;}
+.not-front #rules-form-wrapper form input[id='edit-submit']{border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 14px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff}
+
+/*--------Email Notificaion Template-------*/
+.page-admin-config-workflow #content form fieldset#edit-parameter-op > .fieldset-wrapper > div.form-item > select, .page-admin-config-workflow #content form fieldset#edit-parameter-value > .fieldset-wrapper > div.form-item > select{width: 32%;display: inline-block;height: 34px;padding: 6px 12px;font-size: 14px;line-height: 1.428571429;color: #555;vertical-align: middle;background-color: #fff;background-image: none;border: 1px solid #bac6d0;border-radius: 4px;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);}
+
+/*--------Password Policy Configuration-------*/
+.page-admin-config-people-password-policy #content form#password-policy-admin-form fieldset#edit-constraints legend > span{background: #408dce;border-left: 20px solid #20398d;padding: 12px 14px;text-transform: uppercase;color: #fff;font-size: 13px;font-weight: bold;border-bottom: none;font-family: "Helvetica Neue",Helvetica,Arial, sans-serif;margin-bottom: 0;}
+.page-admin-config-people-password-policy #content form#password-policy-admin-form fieldset#edit-constraints legend {margin-bottom:0;}
+.page-admin-config-people-password-policy #content form#password-policy-admin-form fieldset#edit-constraints legend > span > a {color:#fff;}
+.page-admin-config-people-password-policy #content form#password-policy-admin-form fieldset#edit-constraints legend > span > a {cursor:default; pointer-events:none}
+
+/*-------Front Footer Menu----*/
+#block-menu-menu-footer-retails h2.block-title{background:url(../images/link1.png) no-repeat; height:35px; width:51px;text-indent: -9999px; display-inline:block;}
+#block-menu-menu-footer-corporate h2.block-title{background:url(../images/link2.png) no-repeat; height:35px; width:56px;text-indent: -9999px; display-inline:block;}
+#block-menu-menu-footer-residential h2.block-title{background:url(../images/link3.png) no-repeat; height:35px; width:57px;text-indent: -9999px; display-inline:block;}
+#block-menu-menu-footer-finance h2.block-title{background:url(../images/link4.png) no-repeat; height:35px; width:54px;text-indent: -9999px; display-inline:block;}
+#block-menu-menu-footer-hotels h2.block-title{background:url(../images/link5.png) no-repeat; height:35px; width:40px;text-indent: -9999px; display-inline:block;}
+#block-menu-menu-footer-csr h2.block-title{background:url(../images/link6.png) no-repeat; height:35px; width:41px;text-indent: -9999px; display-inline:block;}
+.not-logged-in #footer .block-menu { display:none; font-size: 13px;}/*hide*/
+.not-logged-in #footer div.block-menu > h2.block-title{cursor:pointer}
+.not-logged-in #footer .block-menu > ul.menu{display:none;background: white;border:1px solid #ddd; border-radius: 0.8em; padding:1em;position:absolute;margin:0;}
+.not-logged-in #footer .block-menu ul{list-style-type: none;list-style-image: none;}
+.not-logged-in #footer .block-menu li{list-style-type: none;list-style-image: none;}
+.not-logged-in #footer .block-menu{width: auto;display: inline-block;}
+.not-logged-in #footer .block-menu > ul.loginDropDown > li.expanded > span.nolink{color: #3399ff !important;font-weight: bold;}
+.not-logged-in #footer .block-menu > ul.loginDropDown > li.expanded > a{color: #3399ff !important;font-weight: bold;}
+.not-logged-in #footer .block-menu ul.menu{margin:0;}
+.not-logged-in #footer .block-menu > ul.loginDropDown > li > ul.menu {padding: 0 0 0 1em;}
+.not-logged-in #footer .block-menu > ul.loginDropDown > li > ul.menu > li > ul.menu {padding: 0 0 0 1em;}
+.not-logged-in #footer .block-menu > ul.loginDropDown li {padding: 0.2em; color: #333399}
+.not-logged-in #footer .block-menu > ul.loginDropDown li a{color: #333399}
+.not-logged-in #footer .block-menu > ul.loginDropDown {margin-bottom:2em; -webkit-box-shadow: 0px 0px 5px -1px rgba(204,204,204,1); -moz-box-shadow: 0px 0px 5px -1px rgba(204,204,204,1); box-shadow: 0px 0px 5px -1px rgba(204,204,204,1);}
+.footerMenu{margin-top: -13.5em;margin-left: 6em;float:left;}
+
+/*--------Not Front Footer Menu----------*/
+.not-front #footer .block-menu {font-size: 13px; padding-top:20px; text-align: left;}/*hide*/
+.not-front #footer div.block-menu > h2.block-title{cursor:pointer;}
+.not-front #footer .block-menu > ul.menu{display:none;background: white;border:1px solid #ddd; border-radius: 0.8em; padding:1em;position:absolute;margin:0;bottom:5em}
+.not-front #footer .block-menu ul{list-style-type: none;list-style-image: none;}
+.not-front #footer .block-menu li{list-style-type: none;list-style-image: none;}
+.not-front #footer .block-menu{width: auto;display: inline-block;}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown > li.expanded > span.nolink{color: #3399ff !important;font-weight: bold;}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown > li.expanded > a{color: #3399ff !important;font-weight: bold;}
+.not-front #footer .block-menu ul.menu{margin:0;z-index: 2;}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown > li > ul.menu {padding: 0 0 0 1em;}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown > li > ul.menu > li > ul.menu {padding: 0 0 0 1em;}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown li {padding: 0.2em; color: #333399}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown li a{color: #333399}
+.not-front #footer .block-menu > ul.notFrontLoginDropDown {margin-bottom:2em; -webkit-box-shadow: 0px 0px 5px -1px rgba(204,204,204,1); -moz-box-shadow: 0px 0px 5px -1px rgba(204,204,204,1); box-shadow: 0px 0px 5px -1px rgba(204,204,204,1);}
+.notFrontFooterMenu{text-align:center;}
+
+/*--------SMTP Config---------*/
+.page-admin-config #content form input[type='text'],.page-admin-config #content form input[type='password']{width:32%; display:inline-block}
+.page-admin-config #content form .form-actions{border-top:1px solid #ddd; padding-top:1em}
+.page-admin-config-system-smtp #content form#smtp-admin-settings fieldset.form-wrapper > legend{background: #408dce;border-left: 20px solid #20398d;padding: 12px 14px;text-transform: uppercase;color: #fff;font-size: 13px;font-weight: bold;border-bottom: none;font-family: "Helvetica Neue",Helvetica,Arial, sans-serif;margin-bottom: 0;}
+
+/*--------Contact Us & Quick Guide ---------*/
+.not-front .node-frontpage_info-form input[type='text']{width:32%; display:inline-block}
+.not-front .node-frontpage_info-form fieldset.filter-wrapper{display:none}
+.not-front .node-frontpage_info-form .form-actions{border-top:1px solid #ddd; padding-top:1em}
+
+/*--------Notification Table Scrollable----------*/
+.page-notifications #content div.view-content table tbody tr td, .page-list-notifications #content div.view-content table tbody tr td{vertical-align:top}
+.page-notifications #content div.view-content table, .page-list-notifications #content div.view-content table {border-collapse: collapse;width: 100%;}
+.page-notifications #content div.view-content thead, .page-list-notifications #content div.view-content thead {text-align:left;display: table;float: left;width: 100%;}
+.page-notifications #content div.view-content thead tr, .page-list-notifications #content div.view-content thead tr {display: table-row;width: 100%;}
+.page-notifications #content div.view-content tbody, .page-list-notifications #content div.view-content tbody {display: block;min-height:30px;max-height: 196px;overflow: auto;float: left;width: 100%;}
+.page-notifications #content div.view-content tbody tr, .page-list-notifications #content div.view-content tbody tr {display: table;width: 100%;}
+.page-notifications #content div.view-content thead tr th:nth-child(1), .page-list-notifications #content div.view-content thead tr th:nth-child(1){width:60%;border:none}
+.page-notifications #content div.view-content thead tr th:nth-child(2), .page-list-notifications #content div.view-content thead tr th:nth-child(2){width:30%;border:none}
+.page-notifications #content div.view-content thead tr th:nth-child(3), .page-list-notifications #content div.view-content thead tr th:nth-child(3){width:10%;border:none}
+.page-notifications #content div.view-content tbody tr td:nth-child(1), .page-list-notifications #content div.view-content tbody tr td:nth-child(1){width:58%;}
+.page-notifications #content div.view-content tbody tr td:nth-child(2), .page-list-notifications #content div.view-content tbody tr td:nth-child(2){width:30%;}
+.page-notifications #content div.view-content tbody tr td:nth-child(3), .page-list-notifications #content div.view-content tbody tr td:nth-child(3){width:10%;}
+
+/*-------Purchase Order Table Scrollable------------*/
+.page-archive-list-purchase-order div.block-views.even .view-content table.views-table tbody > tr.odd{background:#d8def0;}
+.page-archive-list-purchase-order div.block-views.even .view-content table.views-table > tbody > tr{border-bottom: 1px solid #fff}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table, 
+/* .page-list-purchase-order #content div.even div.view-purchase-order-internalusers form table.views-table, */
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table{border-collapse: collapse;width: 100%;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table thead > tr > th, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table thead > tr > th, 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table thead > tr > th{text-align:left;padding:10px 5px;border: none;vertical-align:top;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > tbody > tr > td, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table  > tbody > tr > td, 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > tbody > tr > td{text-align:left}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > thead, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > thead, 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > thead{text-align:left;display: table;float: left;width: 100%;background:#20398d;}
+.lt-ie9 .page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > thead, 
+.lt-ie9 .page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > thead, 
+.lt-ie9 .page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > thead{padding-right:3em;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table thead > tr > td, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table thead > tr > td,  
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table thead > tr > td{text-align:center;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table thead tr, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table thead tr, 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table thead tr{display: table-row;width: 100%;border:none;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > tbody, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > tbody,  
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > tbody{display: block;min-height:30px;max-height: 241px;overflow: auto;float: left;width: 100%;border: 1px solid #808EBE;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table tbody tr, 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table tbody tr, 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table tbody tr{display: table;width: 100%;}
+
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > thead tr th:nth-child(1),
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > thead tr th:nth-child(1),
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > thead tr th:nth-child(1){width:22%;border:none; padding-left: 1em;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > thead tr th:nth-child(2), 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > thead tr th:nth-child(2),
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > thead tr th:nth-child(2){width:38%;border:none}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > thead tr th:nth-child(3),
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > thead tr th:nth-child(3),
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > thead tr th:nth-child(3){width:17%;border:none}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > thead tr th:nth-child(4), 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > thead tr th:nth-child(4),
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > thead tr th:nth-child(4){width:21%;border:none}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > tbody tr td:nth-child(1), 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > tbody tr td:nth-child(1), 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > tbody tr td:nth-child(1){width:22%;padding-left: 1em;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > tbody tr td:nth-child(2),
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > tbody tr td:nth-child(2), 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > tbody tr td:nth-child(2){width:40%;max-width: 180px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > tbody tr td:nth-child(3), 
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > tbody tr td:nth-(3),
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > tbody tr td:nth-child(3){width:18%;}
+.page-list-purchase-order-org #content div.view-purchase-order-org-internal-users form table.views-table > tbody tr td:nth-child(4),
+.page-list-purchase-order #content div.view-purchase-order-internalusers form table.views-table > tbody tr td:nth-child(4), 
+.page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users table.views-table > tbody tr td:nth-child(4){width:20%;}
+.page-purchase-order #content #block-views-purchase-order-search > div.view-purchase-order > div.view-content.ui-accordion{display: block;min-height: 30px;max-height: 259px;overflow-y: auto;}
+.page-archive-purchase-order #content #block-views-purchase-order-archive-search > div.view-purchase-order-archive > div.view-content.ui-accordion{display: block;min-height: 30px;max-height: 259px;overflow-y: auto;}
+
+/*-------Pager---------*/
+.pager-current{display: inline-block !important;padding: 1px 8px !important;background-color: #2692ff !important;border: 1px solid #2692ff !important;border-radius: 4px !important;color: #fff !important;}
+.pager li>a, .pager li>span {display: inline-block !important;padding: 1px 8px !important;background-color: #c1c1c1;border: 1px solid #c1c1c1;border-radius: 4px !important;color: #fff !important;}
+.pager li>a:hover, .pager li>span:hover {background-color: #2692ff;border: 1px solid #2692ff;font-weight:bold;}
+.pager-previous a:hover, .pager-next a:hover{background-color: #3d3d3d !important;border: 1px solid #3d3d3d !important;} 
+.pager-previous a, .pager-next a{background-color: #878787 !important;border: 1px solid #878787 !important;} 
+.pager-first, .pager-last{display:none !important;}
+.item-list .pager li, .item-list .pager li{padding: 0;}
+ul.pager{text-align:right !important}
+
+/*--------Sort Table---------*/
+table.smTable > thead > tr > th > a.active > img{vertical-align:top;margin-left:0.5em;}
+
+/*--------GR Details-----*/
+.page-po-monitoring-report-goods-receipt table.views-table tbody tr td.views-field-field-gr-material-desc, .page-reports-po-monitoring-goods-receipt table.views-table tbody tr td.views-field-field-gr-material-desc{text-align:left}
+
+/*--------Popup Payment Voucher---------*/
+.page-payment-voucher #popup-message-window br{display:none}
+.page-payment-voucher #popup-message-window h1.popup-message-title{margin-top:0}
+.page-payment-voucher #popup-message-window table.views-table thead > tr > th {background: #20398d;color: #fff;padding: 10px;text-align: center;text-transform: uppercase;font-weight: 500;font-size: 12px; vertical-align: top}
+.page-payment-voucher #popup-message-window table.views-table tbody > tr {text-align:center}
+
+/*--------Popup BIR Form 2307---------*/
+.page-bir-form-2307 #popup-message-window br {display:none}
+.page-bir-form-2307 #popup-message-window h1.popup-message-title{margin-top:0}
+.page-bir-form-2307 #popup-message-window table.views-table thead > tr > th {background: #20398d;color: #fff;padding: 10px;text-align: center;text-transform: uppercase;font-weight: 500;font-size: 12px; vertical-align:top}
+.page-bir-form-2307 #popup-message-window table.views-table tbody > tr {text-align:center}
+
+/*--------Settings - Vendorm Information Sheet-------*/
+.page-node-webform-results #content div.webform-results-per-page {margin-top:1em;}
+.page-node-webform-results #content ul.secondary {border-bottom:none; margin:0; float:right}
+.page-node-webform-results #content ul.secondary li {margin: 0.5em 0 0 3px;}
+.page-node-webform-results #content ul.secondary li a {border-radius: 3px !important;border: none !important;background: #3298fd !important;background: -moz-linear-gradient(top, #3298fd 0%, #0154a7 100%) !important;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3298fd), color-stop(100%,#0154a7)) !important;background: -webkit-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -o-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: -ms-linear-gradient(top, #3298fd 0%,#0154a7 100%) !important;background: linear-gradient(to bottom, #3298fd 0%,#0154a7 100%) !important;filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3298fd', endColorstr='#0154a7',GradientType=0 ) !important;display: inline-block;padding: 6px 12px;margin-bottom: 0;font-size: 12px;font-weight: normal;line-height: 1.428571429;text-align: center;white-space: nowrap;vertical-align: middle;color:#fff;text-shadow:none;}
+.page-node-webform-results #content ul.secondary li:first-child, .page-node-webform-results #content ul.secondary li a[href*="analysis"], .page-node-webform-results #content ul.secondary li a[href*="table"]{display:none}
+.page-node-webform-results-download #content ul.secondary {display:none !important}
+.page-node-webform-results-download #content form#webform-results-download-form fieldset.collapsible{display:none;}
+
+/*--------IE 8---------*/
+.lt-ie9 div#login-form{margin-left:2em !important;}
+.lt-ie9 div.login-border{right: 19px !important;}
+.lt-ie9 div.login-footer-note{margin-right: 2em !important;}
+.lt-ie9 h1.goDaddyLogo{margin-right: 1em !important;}
+.lt-ie9 div.purchaseOrderHeader{color: #fff !important}
+.lt-ie9 div.purchaseOrderHeader > div{background-color: #20398d !important;}
+.lt-ie9 ul.user-menu li{display:inline !important;}
+.lt-ie9 ul.user-menu li:first-child{border-right: 1px solid !important;padding-right: 0.5em !important}
+.lt-ie9 #poSearch .xml {display:ruby-base !important; padding-left: 1em !important}
+.lt-ie9 #poSearch .csv {display:ruby-base !important; padding-left: 1em !important}
+.lt-ie9 #poSearch .user {display:ruby-base !important; padding-left: 1em !important}
+.lt-ie9 #poSearch .back {display:ruby-base !important; padding-left: 0.5em !important}
+.lt-ie9 #poSearch .pdf {display:ruby-base !important; padding-left: 1em !important}
+.lt-ie9 #poSearch .alias {display:ruby-base !important; padding-left: 1em !important}
+.lt-ie9 #poSearch div.list {display:ruby-base !important; padding-left: 0.5em !important}
+.lt-ie9 #poSearch .add {display:ruby-base !important; padding-left: 0.5em !important}
+.lt-ie9 div.poAccordBody table.smTable tbody tr.views-row td + td{max-width: 400px;width: 400px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap; -ms-text-overflow: ellipsis; position: absolute}
+.ie8ActiveTab{background:#428bca !important}
+.ie8ActiveTab a{padding:5px 15px !important; color: #fff !important;}
+.lt-ie9 .page-list-purchase-order-org #content div.even div.view-purchase-order-org-internal-users > div.view-content form > div > table.views-table > tbody > tr.showHide > td > div.scrollable table.po-lineno-table tbody tr > td + td a, 
+.lt-ie9 .page-list-purchase-order #content div.view-purchase-order-internalusers > div.view-content form > div > table.views-table > tbody > tr.showHide > td > div.scrollable table.po-lineno-table tbody tr > td + td a, 
+.lt-ie9 .page-archive-list-purchase-order #content div.even div.view-purchase-order-archive-internal-users > div.view-content > table.views-table > tbody tr.showHide > td > table > tbody > tr > td + td span{max-width: 380px;width: 380px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap; -ms-text-overflow: ellipsis; display:block}
+.lt-ie9 .po-number{float:left; width: 41.66666666666667%;}
+.lt-ie9 .po-created{float:left; width: 34.66666666666667%;}
+.lt-ie9 .po-status{float:left; width: 16.666666666666664%;}
+.lt-ie9 .not-front #content .views-exposed-widgets input, .lt-ie9 .not-front #content .views-exposed-widgets select {padding: 5px;}
+.lt-ie9 .not-front #content #poSearch div { padding-top:7px; padding-bottom: 7px;} 
+
+/* .page-list-purchase-order-org #content div.even table.smTable tbody tr:nth-child(2){display:table !important} */

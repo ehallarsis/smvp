@@ -1,0 +1,19 @@
+<?php
+/**
+* Implements hook_views_api().
+*/
+function smv_inlineupdate_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'smv_inlineupdate') . '/views',
+  );
+}
+
+function smv_inlineupdate_permission() {
+  return array(
+    'smv_inlineupdate administer status' => array(
+      'title' => t('Administer inline update of content'),
+      'description' => t('Perform inline update of content.'),
+    ),
+  );
+}

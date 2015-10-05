@@ -1,0 +1,4 @@
+name = Vendor account confirmation
+description = Account verification process for vendor users
+core = 7.x
+package = PRIMESOFT

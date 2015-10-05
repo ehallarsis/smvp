@@ -1,0 +1,425 @@
+<?php
+
+function smv_global_settings_permission() {
+  return array(
+    'smv update_global settings' => array(
+      'title' => t('Update global settings'),
+      'description' => t('Allows users to update site global settings'),
+    ),
+  );
+}
+
+function smv_global_settings_views_api() {
+    return array(
+        'api' => '3',
+    );
+}
+
+/*
+ * Implementation of hook_menu()
+ */
+function smv_global_settings_menu(){
+  $items['global-settings'] = array(
+    'title' => 'Global Settings',
+    'description' => 'Global setting page for SM Administrator.',
+    'page callback' => 'smv_global_settings_page_template',
+    'access arguments' => array('smv update_global settings'),
+  );  
+  $items['global-settings/email-templates'] = array(
+    'title' => 'Email Templates',
+    'description' => 'Email template page for SM Administrator.',
+    'page callback' => 'smv_global_settings_page_email_template',
+    'access arguments' => array('smv update_global settings'),
+  );   
+  $items['global-settings/footer-links'] = array(
+    'title' => 'Footer Links',
+    'description' => 'Footer links SM Administrator.',
+    'page callback' => 'smv_global_settings_page_footerlink_template',
+    'access arguments' => array('smv update_global settings'),
+  ); 
+  $items['global-settings/setup'] = array(
+    'title' => 'Cleanup Schedule',
+    'access arguments' => array('smv update_global settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smv_global_settings_setup_form'),
+    'description' => 'Cleanup Schedule',
+    'file' => 'smv_global_settings.admin.inc',
+  );        
+  $items['global-settings/housekeeping/%'] = array( 
+    'title' => 'Global Settings Update', 
+    'description' => 'Custom form for editing a global settings',
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('smv_global_settings_setup_edit_form',2),
+    'access arguments' => array('smv update_global settings'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_global_settings.admin.inc',
+  );
+
+  return $items;
+}
+
+/*
+ * Returns custom content to Drupal
+ */
+function smv_global_settings_page_template(){
+  return theme('smv_global_settings_template');
+}
+
+/*
+ * Returns custom content to Drupal
+ */
+function smv_global_settings_page_email_template(){
+  return theme('smv_global_settings_email_template');
+}
+
+/*
+ * Returns custom content to Drupal
+ */
+function smv_global_settings_page_footerlink_template(){
+  return theme('smv_global_settings_footerlink_template');
+}
+   
+/*
+ * Implementation of hook_theme().
+ */
+function smv_global_settings_theme(){
+  return array(
+    'smv_global_settings_template' => array(
+      'template' => 'templates/global-settings',
+    ),
+    'smv_global_settings_email_template' => array(
+      'template' => 'templates/email-templates',
+    ),   
+    'smv_global_settings_footerlink_template' => array(
+      'template' => 'templates/footer-links',
+    ),     
+  );
+}
+
+/*
+ * Implementation of hook_form_alter()
+ */
+function smv_global_settings_form_alter(&$form, &$form_state, $form_id){
+  global $user;
+
+  //Announcements
+  if($form_id == 'announcement_node_form' && !in_array('administrator', $user->roles)){
+    drupal_set_title(t('Edit Announcements'));
+    //$form['title']['#access']  = FALSE;    
+    $form['body'][LANGUAGE_NONE][0]['summary']['#access'] = FALSE;
+    $form['field_announ_php']['#access']  = FALSE;    
+    $form['additional_settings']['#access'] = FALSE;
+    $form['options']['status'] = array('#type' => 'value','#value' => 1);
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+
+  //Terms and Conditions
+  if($form_id == 'terms_node_form' && !in_array('administrator', $user->roles)){
+    drupal_set_title(t('Edit Terms and Conditions'));
+    //$form['title']['#access']  = FALSE;    
+    $form['body'][LANGUAGE_NONE][0]['summary']['#access'] = FALSE;
+    $form['field_terms_php']['#access']  = FALSE;    
+    $form['additional_settings']['#access'] = FALSE;
+    $form['actions']['preview']['#access'] = FALSE;
+    $form['options']['status'] = array('#type' => 'value','#value' => 1);
+  }
+
+  //Contact Us & Quickguide
+  if($form_id == 'frontpage_info_node_form' && !in_array('administrator', $user->roles)){
+
+    $nid = $form['nid']['#value'];
+    if($nid == 75){
+      drupal_set_title(t('Edit Contact Us'));
+    }
+    if($nid == 74){
+      drupal_set_title(t('Edit Quick Guide'));
+    }
+
+    $form['body'][LANGUAGE_NONE][0]['summary']['#access'] = FALSE;
+    $form['additional_settings']['#access'] = FALSE;
+    $form['options']['status'] = array('#type' => 'value','#value' => 1);
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+
+  //Emails
+  if($form_id == 'rules_ui_edit_element' && !in_array('administrator', $user->roles)){
+
+    //page title
+    $pageTitle = _smv_global_settings_email_page_title(arg(6));
+    drupal_set_title($pageTitle);
+
+    $form['parameter']['to']['#access']  = FALSE; 
+    $form['parameter']['from']['#access']  = FALSE; 
+    $form['parameter']['language']['#access']  = FALSE; 
+
+    //Subject
+    $form['parameter']['subject']['settings']['subject']['#title'] = t('Subject');
+    $form['parameter']['subject']['settings']['subject']['#type'] = 'textfield';
+    $form['parameter']['subject']['#description'] = '';
+    $form['parameter']['subject']['settings']['help']['token']['#access']  = FALSE;
+    $form['parameter']['subject']['switch']['button']['#access']  = FALSE;
+
+    //Message
+    $form['parameter']['message']['settings']['message']['#title'] = t('Body');
+    $form['parameter']['message']['#description'] = '';
+    $form['parameter']['message']['settings']['help']['token']['#access']  = FALSE;
+    $form['parameter']['message']['switch']['button']['#access']  = FALSE;   
+
+    $form['#submit'][] = '_smv_global_settings_emailtemp_submit';
+
+    $form['cancel'] = array(
+      '#markup' => l(t('Cancel'),'global-settings/email-templates'),
+      '#weight' => 100,       
+    );
+  }
+ 
+  //Menu Link
+  if($form_id == 'menu_edit_item' && !in_array('administrator', $user->roles)){
+    $form['description']['#access']  = FALSE; 
+    $form['parent']['#access']  = FALSE; 
+    $form['weight']['#access']  = FALSE;  
+  }
+
+  //Password Policy
+  if($form_id == 'password_policy_admin_form' && !in_array('administrator', $user->roles)){
+    drupal_set_title(t('Password Policy Configuration'));
+    $form['policy']['#access']  = FALSE;
+    $form['roles']['#access']  = FALSE; 
+    $form['expiration']['#access']  = FALSE;
+    $form['constraints']['constraint_delay']['#access']  = FALSE;
+    $form['constraints']['constraint_complexity']['#access']  = FALSE;
+    $form['constraints']['constraint_history']['#access']  = FALSE;
+    $form['constraints']['constraint_username']['#access']  = FALSE;
+    $form['constraints']['constraint_punctuation']['#access']  = FALSE;
+    $form['constraints']['constraint_digit_placement']['#access']  = FALSE;
+    $form['#submit'][] = '_smv_global_settings_passpolicy_submit';
+    $form['actions']['delete']['#access']  = FALSE;
+  }
+
+  //Security Questions
+  if($form_id == 'taxonomy_form_term' && !in_array('administrator', $user->roles)){
+    drupal_set_title(t('Security Question'));
+    $form['description']['#access'] = FALSE;
+    $form['relations']['#access'] = FALSE;
+
+    $list = url('global-settings/security-questions', array('absolute'=>TRUE));
+
+    $form['list-link'] = array(    
+      '#markup' => '<div id="poSearch"><div class="views-header"><div class="list"><a href="'.$list.'"><span>Back to list of Security Questions</span></a></div></div></div>',    
+      '#weight' => -99,
+    );    
+
+    $form['actions']['delete']['#access']  = FALSE;      
+  } 
+
+  //VIS Results
+  if($form_id == 'webform_results_download_form'){
+    drupal_set_title(t('Export Vendor Information Sheet submissions'));   
+
+    $form['select']['#access']  = FALSE; 
+    $form['components']['#access']  = FALSE; 
+    $form['range']['#access']  = FALSE;  
+
+    $form['actions']['cancel'] = array(
+      '#markup' => l(t('Cancel'),'node/39/webform-results'),
+      '#weight' => 100,       
+    );
+  }
+
+  return $form;
+} 
+
+/*
+ * Helper for Email template custom page title
+ */
+function _smv_global_settings_email_page_title($rulename){
+
+  switch($rulename){
+    case 'rules_vendor_account_send_email_account_verification':
+      $output = 'Vendor Account Validation';
+      break;
+    default:
+      $output = 'Email Notification Template';
+  }
+
+  return $output;
+}
+
+/*
+ * Helper after update of password policy
+ */
+function _smv_global_settings_passpolicy_submit($form, &$form_state){
+  $form_state['rebuild'] = TRUE;
+  $form_state['redirect'] = url("admin/config/people/password_policy/1/edit", array('absolute' => true));
+}
+
+/*
+ * Helper after update of email templates
+ */
+function _smv_global_settings_emailtemp_submit($form, &$form_state){
+  $form_state['rebuild'] = TRUE;
+  $form_state['redirect'] = url("global-settings/email-templates", array('absolute' => true));
+}
+
+/*
+ * Get the current settings of Terms and Condition page (vendor display)
+ * 0|Do not display this page
+ * 1|Always display this page
+ * 2|Display on initial login only
+ * 3|Always display on unverified user account
+ */
+function smv_global_settings_terms_vendor_display(){
+  $node = node_load(40);
+
+  if($node){
+    $field_info = field_get_items('node', $node, 'field_terms_vendor_display');
+    $display = check_plain($field_info[0]['value']);    
+
+    if(isset($display)){
+      return $display;
+    }
+  }
+  
+  return FALSE;
+}
+
+/*
+ * Get the current settings of Terms and Condition page (internal user display)
+ * 0|Do not display this page
+ * 1|Always display this page
+ * 2|Display on initial login only
+ */
+function smv_global_settings_terms_internal_display(){
+  $node = node_load(40);
+
+  if($node){
+    $field_info = field_get_items('node', $node, 'field_terms_internal_display');
+    $display = check_plain($field_info[0]['value']);    
+
+    if(isset($display)){
+      return $display;
+    }
+  }
+  
+  return FALSE;
+}
+
+/*
+ * Get the current settings of Announcement page (vendor display)
+ * 0|Do not display this page
+ * 1|Always display this page
+ * 2|Display on initial login only
+ * 3|Always display on unverified user account 
+ */
+function smv_global_settings_announcement_vendor_display(){
+  $node = node_load(41);
+
+  if($node){
+    $field_info = field_get_items('node', $node, 'field_announ_vendor_display');
+    $display = check_plain($field_info[0]['value']);    
+
+    if(isset($display)){
+      return $display;
+    }
+  }
+  
+  return FALSE;
+}
+
+/*
+ * Get the current settings of Announcement page (internal user display)
+ * 0|Do not display this page
+ * 1|Always display this page
+ * 2|Display on initial login only 
+ */
+function smv_global_settings_announcement_internal_display(){
+  $node = node_load(41);
+
+  if($node){
+    $field_info = field_get_items('node', $node, 'field_announ_internal_display');
+    $display = check_plain($field_info[0]['value']);    
+
+    if(isset($display)){
+      return $display;
+    }
+  }
+  
+  return FALSE;
+}
+
+/*
+ * Get the current settings of Announcement page (login page display)
+ */
+function smv_global_settings_announcement_loginpage_display(){
+  $node = node_load(41);
+
+  if($node){
+    $field_info = field_get_items('node', $node, 'field_announ_login_display');
+    $display = check_plain($field_info[0]['value']);    
+
+    if($display == 1){
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+function smv_global_settings_user_login(&$edit, $account){
+
+  $vendor_terms_display  = smv_global_settings_terms_vendor_display();
+  $vendor_announ_display = smv_global_settings_announcement_vendor_display();
+  $vendor_has_pendingor  = smv_sitefeeds_vendor_has_pending_or();
+
+  $internal_terms_display  = smv_global_settings_terms_internal_display();
+  $internal_announ_display = smv_global_settings_announcement_internal_display();  
+
+  //Pre-authorized
+  if(in_array('pre-authorized',$account->roles)){
+    if($account->access == 0  && ($vendor_terms_display == 1 || $vendor_terms_display == 2 || $vendor_terms_display == 3)){
+      $_SESSION['user_firstlogin_' . $account->uid] = 1;
+      drupal_goto('terms-and-conditions');        
+    }elseif($account->access != 0 && ($vendor_terms_display == 1 || $vendor_terms_display == 3)){
+      drupal_goto('terms-and-conditions'); 
+    }elseif($account->access == 0 && ($vendor_announ_display == 1 || $vendor_announ_display == 2 || $vendor_announ_display == 3)){
+      $_SESSION['user_firstlogin_' . $account->uid] = 1;
+      drupal_goto('announcements');
+    }elseif($account->access != 0 && ($vendor_announ_display == 1 || $vendor_announ_display == 3)){
+      drupal_goto('announcements');
+    }elseif($vendor_terms_display == 0 && $vendor_announ_display == 0 && $has_pendingor){
+      drupal_goto('pending-or');
+    }else{
+      drupal_goto('user/' . $account->uid . '/edit');
+    }
+  }
+
+  if(in_array('vendor',$account->roles)){
+    if($vendor_terms_display == 1){
+      drupal_goto('terms-and-conditions');
+    }elseif($vendor_terms_display != 1 && $vendor_announ_display == 1){
+      drupal_goto('announcements');
+    }elseif($vendor_terms_display != 1 && $vendor_announ_display != 1 && $has_pendingor){
+      drupal_goto('pending-or');
+    }else{
+      drupal_goto('purchase-order');
+    }
+  }
+
+  if(in_array('internal-users',$account->roles)){
+    if($account->access == 0  && ($internal_terms_display == 1 || $internal_terms_display == 2)){
+      $_SESSION['user_firstlogin_' . $account->uid] = 1;
+      drupal_goto('terms-and-conditions');        
+    }elseif($account->access != 0 && $internal_terms_display == 1){
+      drupal_goto('terms-and-conditions'); 
+    }elseif($account->access == 0 && ($internal_announ_display == 1 || $internal_announ_display == 2)){
+      $_SESSION['user_firstlogin_' . $account->uid] = 1;
+      drupal_goto('announcements');
+    }elseif($account->access != 0 && $internal_announ_display == 1){
+      drupal_goto('announcements');
+    }else{
+      smv_usertype_internaluser_landingpage();
+    }
+  }
+
+}

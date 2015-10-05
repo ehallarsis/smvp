@@ -1,0 +1,4 @@
+name = Multi Form Alter
+description = Multiple form alter module, alter different forms
+core = 7.x
+package = PRIMESOFT

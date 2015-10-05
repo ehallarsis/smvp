@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Login Security installation routines.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function smv_loginsecurity_schema() {
+  $schema['smv_loginsecurity_track'] = array(
+    'description' => 'Keeps track of failed login attempts, as a pair of the IP address and user name.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "ID of each login event.",
+      ),
+      'host' => array(
+        'type' => 'varchar',
+        'length' => 39,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The IP address of the request.",
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'length' => 11,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "The user id.",
+      ),  
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Timestamp of the event.",
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'host' => array('host'),
+      'timestamp' => array('timestamp'),
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['smv_loginsecurity_blocked_accounts'] = array(
+    'description' => 'Keeps track of blocked user accounts.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "ID of each blocked account event.",
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'length' => 11,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "The user id.",
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Timestamp of the event.",
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'timestamp' => array('timestamp'),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}

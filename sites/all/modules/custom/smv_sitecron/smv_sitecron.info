@@ -1,0 +1,4 @@
+name = Cron Job
+description = User creation and file sync cron scripts
+core = 7.x
+package = PRIMESOFT

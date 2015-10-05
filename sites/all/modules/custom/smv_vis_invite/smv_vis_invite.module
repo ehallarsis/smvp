@@ -1,0 +1,80 @@
+<?php
+
+function smv_vis_invite_form_alter(&$form, &$form_state, $form_id) {
+
+  if($form_id == 'webform_client_form_39'){
+
+    if(isset($_GET['code'])) {
+      $code = htmlspecialchars($_GET['code']);
+
+      $result = db_select('webform_vis_codes', 'c')
+      ->fields('c')
+      ->condition('code', $code, '=')
+      ->execute()
+      ->fetchAssoc();
+
+      if(count($result) != 0) {
+        if ($result['used'] == "0") {
+          $form['submitted']['code']['#value'] = $code;
+        }
+        else {
+          drupal_not_found();
+          drupal_exit();
+        }
+      }
+      else {
+        drupal_not_found();
+        drupal_exit();
+      }
+
+    }
+    else {
+      drupal_not_found();
+      drupal_exit();
+    }
+    
+  }
+
+  if($form_id == 'webform_client_form_208') {
+    $form['submitted']['body']['#value'] = _smv_vis_invite_generate_code();
+  }
+}
+
+function smv_vis_invite_webform_submission_insert($node, $submission) {
+
+  if ($node->nid == '39') {
+    db_update('webform_vis_codes')
+      ->fields(array(
+        'used' => REQUEST_TIME,
+      ))
+      ->condition('code',$submission->data[67][0])
+      ->execute();
+  }
+}
+
+function _smv_vis_invite_generate_code() {
+
+  Global $base_url;
+  // Code generation
+  $code = md5(microtime(1) * rand());
+  $flag = 0;
+
+  do {
+    try {
+      // Insert code to DB
+      $result = db_insert('webform_vis_codes')->fields(array(
+        'code' => $code,
+        'generated' => REQUEST_TIME,
+        'used' => null,
+      ))->execute();
+      $flag = 1;
+    }
+    catch (PDOException $e) {
+      // The generated code is already in DB; make another one.
+    }
+
+  } while ($flag == 0);
+
+  $vis_url = $base_url . '/' . 'vendor-information-sheet?code=' . $code;
+  return($vis_url);
+}

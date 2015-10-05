@@ -1,0 +1,4 @@
+name = LDAP Settings	
+description = LDAP configuration and settings
+package = PRIMESOFT
+core = 7.x

@@ -1,0 +1,337 @@
+<?php
+
+define('SMV_LOGIN_SECURITY_TRACK_TIME', 15); //number of minutes for unlocking account
+
+/*function smv_loginsecurity_cronapi($op, $job = NULL) {
+  $items = array();
+
+  $items['smv_loginsecurity_cleanup'] = array(
+    'title' => 'SMPHI Remove expired login logs',
+  ); 
+
+  return $items;
+}
+
+function smv_loginsecurity_cleanup() {
+ _smv_loginsecurity_remove_events();
+ smv_loginsecurity_unlock_account();
+}*/
+
+
+/**
+ * Implements hook_user_login().
+ */
+function smv_loginsecurity_user_login(&$edit, $account) {
+  _smv_loginsecurity_remove_events($account->uid);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function smv_loginsecurity_form_alter(&$form, &$form_state, $form_id) {
+
+  if($form_id === 'user_login'){
+    //remove description in login forms
+    $form['name']['#description'] = t('');
+    $form['pass']['#description'] = t('');
+
+    //additional validation, allow use of alias
+    array_unshift($form['#validate'],'smv_loginsecurity_validate');  
+  }
+}
+
+/**
+ * Implements hook_validate().
+ *
+ * This functions does more than just validating, but it's main intention is to
+ * break the login form flow.
+ */
+function smv_loginsecurity_validate($form, &$form_state) {
+  
+  // Sanitize user input.
+  $name = $form_state['values']['name'];
+  
+  //Null username should not be tracked.
+  if (!strlen($name)) {
+    return;
+  }
+
+  //Expire old tracked entries.
+  _smv_loginsecurity_remove_events();
+
+  //validation starts here
+  if($name){
+
+    $alias_username = smv_loginsecurity_alias_username($name);
+
+    if($alias_username){
+      $user_name = $alias_username;
+    }else{
+      $user_name = $name;
+    }
+
+    //check if current user is blocked
+    if(user_is_blocked($user_name)){
+      $account = db_query("SELECT u.uid, u.name, u.status, ul.field_user_locked_value as locked, 
+        lp.field_user_locked_permanent_value as permanently_locked FROM {users} u 
+        LEFT JOIN {field_data_field_vendor_alias} va ON va.entity_id = u.uid 
+        LEFT JOIN {field_data_field_user_locked} ul ON ul.entity_id = u.uid 
+        LEFT JOIN {field_data_field_user_locked_permanent} lp ON lp.entity_id = u.uid        
+        WHERE u.name = :name", array(':name' => $user_name))->fetchObject();
+
+      if($account->permanently_locked == 1){
+        form_set_error('name', t('User <i>@username</i> has been blocked due to continous failed login attempts.',
+          array('@username'=>$name,'@url' => url('user/password') )));   
+      }else{
+        form_set_error('name', t('Vendor Account is blocked. Please contact SM Vendor Portal Support Team', 
+          array('%name' => $form_state['values']['name'])));
+      }
+    }
+
+    $account = db_query("SELECT u.uid, u.name, u.status, ul.field_user_locked_value as locked, 
+      lp.field_user_locked_permanent_value as permanently_locked FROM {users} u 
+      LEFT JOIN {field_data_field_vendor_alias} va ON va.entity_id = u.uid 
+      LEFT JOIN {field_data_field_user_locked} ul ON ul.entity_id = u.uid 
+      LEFT JOIN {field_data_field_user_locked_permanent} lp ON lp.entity_id = u.uid        
+      WHERE u.name = :name AND u.status = 1", array(':name' => $user_name))->fetchObject();
+
+    if($account){
+      if($account->name && $account->status == 1 && $account->locked != 1 AND $account->permanently_locked != 1){
+        //valid, proceed
+        form_set_value($form['name'],$account->name, $form_state);    
+      }elseif($account->name && $account->locked == 1){
+        //locked account
+        form_set_error('name', t('User <i>@username</i> has been locked due to failed login attempts. Account will be unlocked after 15 minutes.',
+          array('@username'=>$name)));      
+      }elseif($account->name && $account->permanently_locked == 1){
+        //permanently locked account
+        form_set_error('name', t('User @username has been permanently blocked due to continous failed attempts.',
+          array('@username'=>$name)));   
+      }else{
+        form_set_error('name', t('Sorry, unrecognized username or password'));
+      }
+    }else{
+      form_set_error('name', t('Sorry, unrecognized username or password'));
+    }
+  }
+}
+
+function smv_loginsecurity_alias_username($alias){
+  $result = db_query("SELECT u.name FROM {users} u 
+    LEFT JOIN {field_data_field_vendor_alias} va ON va.entity_id = u.uid 
+    WHERE LOWER(va.field_vendor_alias_value) = LOWER(:alias)", 
+    array('alias' => $alias))->fetchField();
+
+  return $result;
+}
+
+/**
+ * Implements hook_watchdog().
+ */
+function smv_loginsecurity_watchdog(array $log_entry) {
+  if($log_entry['message'] == 'Login attempt failed for %user.'){
+    $username = $log_entry['variables']['%user'];
+    smv_loginsecurity_saved_failed_login($username, ip_address());
+  }
+}
+
+
+/**
+ * Save the login attempt in the tracking database: user name and ip address.
+ *
+ * @param string $name
+ *   user name to be tracked.
+ *
+ * @param string $ip
+ *   IP Address of the pair.
+ */
+function smv_loginsecurity_saved_failed_login($name, $ip){
+
+  $account = user_load_by_name($name);  
+
+  $user_locked_info = field_get_items('user', $account, 'field_user_locked');
+  $locked = check_plain($user_locked_info[0]['value']);
+
+  $user_plocked_info = field_get_items('user', $account, 'field_user_locked_permanent');
+  $locked_permanent = check_plain($user_plocked_info[0]['value']);
+
+  if (!empty($account) && $locked != 1) {
+    //skip saving if the user is admistrator
+    if (!in_array('administrator', array_values($account->roles)) || $account->uid != 1){
+      $event = new stdClass();
+      $event->host = $ip;
+      $event->uid = $account->uid;
+      $event->timestamp = REQUEST_TIME;
+      drupal_write_record('smv_loginsecurity_track', $event);
+
+      $failed_logins = db_query('SELECT id FROM {smv_loginsecurity_track} l 
+        WHERE l.uid = :uid', array(':uid' => $account->uid));
+      $failed_logins_count = $failed_logins->rowCount();
+
+      if($failed_logins_count >= 3){
+        smv_loginsecurity_lock_account($account->uid);
+        _smv_loginsecurity_remove_events($account->uid);
+      }
+
+      $today_blocked = db_query('SELECT ba.id FROM {smv_loginsecurity_blocked_accounts} ba 
+        WHERE ba.uid = :uid 
+        AND DATE(FROM_UNIXTIME(ba.timestamp)) = DATE(NOW())', 
+        array(':uid' => $account->uid));
+      $today_blocked_count = $today_blocked->rowCount();
+
+      if($today_blocked_count >= 1){
+        drupal_set_message(t('User <i>@username</i> has been temporarily locked due to failed login attempts. Account will be unlocked after 15 minutes.',
+          array('@username'=>$name)), 'error');
+      }
+
+      //permanently blocked account when user reach 6 lockout within the day
+      if($today_blocked_count >= 6){
+        smv_loginsecurity_permanently_lock_account($account->uid);
+        _smv_loginsecurity_blocked_accounts_remove_events($account->uid);
+        drupal_set_message(t('User <i>@username</i> has been blocked due to continous failed login attempts.',
+          array('@username'=>$name)), 'error');        
+      }
+
+    }
+  }
+}
+
+function smv_loginsecurity_lock_account($uid){  
+  $account = user_load($uid);
+  if ($account->status == 1) {
+    user_save($account, 
+      array(
+        //'status' => 0,
+        'field_user_locked' => array(LANGUAGE_NONE => array(array('value' => 1))),
+      ), 
+      NULL);
+    
+    db_insert('smv_loginsecurity_blocked_accounts')
+      ->fields(array(
+        'uid' => $uid,
+        'timestamp' => REQUEST_TIME,
+      ))->execute();    
+  }
+}
+
+function smv_loginsecurity_unlock_account($uid=NULL){
+  if (empty($uid)) {
+    $unlock_time_in_seconds = 15 * 60;
+    $time = REQUEST_TIME -  $unlock_time_in_seconds;  
+
+    //get all locked accounts 
+    $records = db_query('SELECT ba.id,ba.uid FROM {smv_loginsecurity_blocked_accounts} ba 
+      WHERE ba.timestamp < :dtimestamp AND ba.timestamp_unlocked = 0', array('dtimestamp'=>$time))->fetchAll();
+
+    if($records){
+      foreach ($records as $r) {
+        
+        //update user
+        $account = user_load($r->uid);
+        if($account->status == 1){            
+          //remove locking of account
+          user_save($account, 
+            array(
+              'field_user_locked' => array(LANGUAGE_NONE => array(array('value' => 0))),
+            ), 
+            NULL);
+        }  
+
+        //update table history to include time of account unlocking
+        db_update('smv_loginsecurity_blocked_accounts')
+          ->fields(array('timestamp_unlocked' => REQUEST_TIME))
+          ->condition('id', $r->id)->execute();  
+      }
+    }
+  }
+}
+
+function smv_loginsecurity_permanently_lock_account($uid){  
+  $account = user_load($uid);
+  if ($account->status == 1) {
+    user_save($account, 
+      array(
+        'status' => 0,
+        'field_user_locked' => array(LANGUAGE_NONE => array(array('value' => 0))),
+        'field_user_locked_permanent' => array(LANGUAGE_NONE => array(array('value' => 1))),
+      ), 
+      NULL);
+  }
+}
+
+/**
+ * Remove tracked events or expire old ones.
+ *
+ * @param string $uid
+ *   If specified, events for this user id will be removed.
+ */
+function _smv_loginsecurity_remove_events($uid = NULL) {  
+  if (!empty($uid)) {    
+    $result = db_delete('smv_loginsecurity_track')
+      ->condition('uid', $uid)
+      ->execute();  
+  }else{
+    // Calculate protection time window and remove expired events.    
+    //$time = REQUEST_TIME - (variable_get('smv_login_security_track_time', SMV_LOGIN_SECURITY_TRACK_TIME) * 60);
+    $time = REQUEST_TIME - 3600;
+    _smv_loginsecurity_remove_all_events($time);    
+  }
+}
+
+/**
+ * Remove tracked events or expire old one - Blocked accounts
+ *
+ * @param string $uid
+ *   If specified, events for this user id will be removed.
+ */
+function _smv_loginsecurity_blocked_accounts_remove_events($uid = NULL) {  
+  if (!empty($uid)) {    
+    $result = db_delete('smv_loginsecurity_blocked_accounts')
+      ->condition('uid', $uid)
+      ->execute();  
+  }else{
+    //delete all those not recorded within the day
+    $result = db_delete('smv_loginsecurity_blocked_accounts')
+      ->condition('DATE(FROM_UNIXTIME(timestamp))', 'DATE(NOW())', '!=')
+      ->execute();     
+  }
+}
+
+/**
+ * Remove all tracked events up to a date..
+ *
+ * @param int $time
+ *   if specified, events up to this timestamp will be deleted. If not
+ *   specified, all elements up to current timestamp will be deleted.
+ */
+function _smv_loginsecurity_remove_all_logs($time = NULL) {
+  // Remove selected events.
+  if (empty($time)) {
+    $time = REQUEST_TIME;
+  }
+  $result = db_delete('smv_loginsecurity_track')
+    ->condition('timestamp', $time, '<')
+    ->execute();
+}
+
+
+/**
+ * Remove all tracked events up to a date..
+ *
+ * @param int $time
+ *   if specified, events up to this timestamp will be deleted. If not
+ *   specified, all elements up to current timestamp will be deleted.
+ */
+function _smv_loginsecurity_remove_all_events($time = NULL) {
+  // Remove selected events.
+  if (empty($time)) {
+    $time = REQUEST_TIME;
+  }
+  $result = db_delete('smv_loginsecurity_track')
+    ->condition('timestamp', $time, '<')
+    ->execute();
+
+  /*db_delete('smv_loginsecurity_blocked_accounts')
+    ->condition('DATE(FROM_UNIXTIME(timestamp))', 'DATE_SUB(NOW(), INTERVAL 1 DAY)', '<=')
+    ->execute();*/
+}

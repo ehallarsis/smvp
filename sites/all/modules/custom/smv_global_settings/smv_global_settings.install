@@ -1,0 +1,41 @@
+<?php
+ 
+ /**
+ * Implements hook_schema().
+ */
+function smv_global_settings_schema() {
+  $schema['smv_global_settings'] = array(
+	'description' => 'Global Settings',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "ID of each setting.",
+      ),
+      'setup_key' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Global settings variable.",
+      ),      
+      'setup_value' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Value of the settings defined.",
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The description of this setting",
+      ),      
+    ),
+    'primary key' => array('id')
+  );
+
+  return $schema;
+}

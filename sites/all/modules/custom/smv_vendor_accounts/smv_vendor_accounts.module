@@ -1,0 +1,294 @@
+<?php
+
+/*
+ * Implements hook_permission().
+ */
+function smv_vendor_accounts_permission() {
+  return array(
+    'manage vendor generic accounts' => array(
+      'title' => 'Manage generic accounts',
+      'description' => t('Grants access to manage vendor accounts alias. This privilege includes access to a page that shows list of vendor alias and also allows users to create, update, and delete alias.'),
+    ),
+  );
+}
+
+function smv_vendor_accounts_menu() {
+  $items = array();
+ 
+	$items['vendor-account/alias/add'] = array( 
+    'title' => 'Add Vendor Alias Account', 
+    'description' => 'Custom form for creating a vendor account',
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('smv_vendor_accounts_form',2),
+    'access arguments' => array('manage vendor generic accounts'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+	/*$items['vendor-account/alias/edit/%'] = array( 
+    'title' => 'Edit Vendor Account Alias', 
+    'description' => 'Custom form for editing a vendor account',
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('smv_vendor_accounts_edit_form',3),
+    'access arguments' => array('manage vendor generic accounts'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_vendor_accounts.alias.inc',
+  );*/
+
+  $items['vendor-account/alias/delete/%'] = array(
+    'title' => 'Delete Alias',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smv_vendor_accounts_delete_confirm',3),
+    'access arguments' => array('manage vendor generic accounts'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_vendor_accounts.alias.inc',
+  );
+
+  return $items;
+}
+
+function smv_vendor_accounts_form($form, &$form_state) {
+	global $user;
+
+	$account = user_load($user->uid);
+
+	$account_main_info = field_get_items('user', $account, 'field_vendor_main_account');
+	$vendor_main = check_plain($account_main_info[0]['value']);
+
+	if($vendor_main == 1 && in_array('vendor', $user->roles)){
+
+    $alias_list_link = url('other-accounts', array('absolute'=>TRUE));
+
+		$form['name'] = array(
+	    '#title' => 'Alias',
+	    '#type' => 'textfield',
+	    '#required' => TRUE,
+		);
+		
+		$form['mail'] = array(
+		  '#title' => 'Email Address',
+		  '#type' => 'textfield',
+		  '#required' => TRUE,
+		);
+		
+		$form['submit'] = array(
+		  '#type' => 'submit',
+		  '#value' => t('Save'),
+		);
+
+	  $form['cancel'] = array(
+      '#markup' => l(t('Back to Other Accounts List'),'other-accounts'),
+      '#weight' => 100,       
+    );
+
+	  return $form;
+	}else{
+		//restrict access
+		drupal_access_denied();
+	}
+}
+
+function smv_vendor_accounts_form_validate($form, &$form_state){
+
+	$alias = $form_state['values']['name'];
+	$mail = $form_state['values']['mail'];
+
+	//check if alias already exists as username
+	if(smv_vendor_accounts_existing_username($alias)) {	
+	  form_set_error('name', t('The specified alias already exists as User ID.'));
+	}
+
+	//check if alias already exists
+	if(smv_vendor_accounts_existing_alias($alias)) {	
+	  form_set_error('name', t('Alias already exists.'));
+	}	
+
+	//validate email address
+	if(!valid_email_address($mail)){
+		form_set_error('mail', t('Please enter a valid email address.'));
+	}
+  if(smv_vendor_accounts_existing_email($mail)){ 
+    form_set_error('mail', t('E-mail Address already exists.'));
+  } 
+  if(smv_vendor_accounts_existing_secondary_email($mail)){ 
+    form_set_error('mail', t('E-mail Address already exists.'));
+  }   
+}
+
+function smv_vendor_accounts_form_submit($form, &$form_state){
+	global $user;
+	global $base_url;
+
+	$account = user_load($user->uid);
+
+	$account_main_info = field_get_items('user', $account, 'field_vendor_main_account');
+	$vendor_main = check_plain($account_main_info[0]['value']);
+
+	if($vendor_main == 1 && in_array('vendor', $user->roles)){
+		//pre-authorized, require-agreement, vendor-generic
+		$roles = array(7 => true, 13 => true); 
+		$name  = $form_state['values']['name'];
+		$mail  = $form_state['values']['mail'];
+
+		$useraccount = user_load_by_name($name);
+
+		if(!$useraccount){
+
+			$account_vendorno_info = field_get_items('user', $account, 'field_vendor_account');
+			$vendor_account = check_plain($account_vendorno_info[0]['value']);
+
+			$account_vendorname_info = field_get_items('user', $account, 'field_vendor_name');
+			$vendor_name = check_plain($account_vendorname_info[0]['value']);
+
+			$pass = user_password();
+
+			//create new user account
+			$new_user = array(
+				'name' => $name,
+				'pass' => $pass,
+				'mail' => $mail,
+				'init' => $mail,
+				'status' => 1,
+				'access' => 0,
+				'login' => 0,
+				'field_vendor_name' => array(LANGUAGE_NONE => array(array('value' => $vendor_name))),
+				'field_vendor_main_account' => array(LANGUAGE_NONE => array(array('value' => 0))),
+				'field_vendor_alias' => array(LANGUAGE_NONE => array(array('value' => $name))),
+				'field_vendor_account' => array(LANGUAGE_NONE => array(array('value' => $vendor_account))),
+				'roles' => $roles, 
+			);
+
+			$generic_account = user_save(null, $new_user);	
+
+			$language = language_default();			
+
+			$timestamp = REQUEST_TIME;
+    	$pass_rehash = drupal_hmac_base64(drupal_get_hash_salt() . $generic_account->name, 'aliasconfirm'); 
+    	$alias_login_link = $base_url . "/account-login/". $generic_account->uid . "/" . $timestamp . "/" . $pass_rehash; 
+
+    	if($generic_account){
+    		rules_invoke_component('rules_account_alias_creation_email', $generic_account, $alias_login_link);
+    	}
+
+			/*if($generic_account && !empty($pass)){	
+				$params['account'] = $generic_account;		
+				$params['message'] = t("Credentials:\nUsername: !username\nPassword: !password", 
+					array("!username" => $name, "!password" => $pass));
+				drupal_set_message(t('You have successfully created a new alias.'));
+				drupal_mail('smv_sitefeeds', 'smv_sitefeeds_mail_feeds_vendor_save', $generic_account->mail, $language, $params);   
+			}*/
+
+		}		
+			
+	}	
+
+	$form_state['redirect'] = 'other-accounts';
+}
+
+function smv_vendor_accounts_existing_alias($alias, $uid=NULL){
+	if(empty($uid)){
+		$result = db_query('SELECT entity_id from {field_data_field_vendor_alias} 
+			WHERE LOWER(field_vendor_alias_value) = LOWER(:alias)', array('alias'=>$alias))->fetchField();			
+	}else{
+		$result = db_query('SELECT entity_id from {field_data_field_vendor_alias} 
+			WHERE LOWER(field_vendor_alias_value) = LOWER(:alias) AND entity_id != :uid', 
+			array('alias'=>$alias, 'uid'=>$uid))->fetchField();					
+	}
+	return $result;
+}
+
+function smv_vendor_accounts_existing_username($alias, $uid=NULL){
+	if(empty($uid)){
+		$result = db_query('SELECT uid FROM {users} WHERE LOWER(name) = LOWER(:alias)', array('alias'=>$alias))->fetchField();	
+	}else{
+		$result = db_query('SELECT uid FROM {users} WHERE LOWER(name) = LOWER(:alias) AND uid != :uid', 
+			array('alias'=>$alias, 'uid'=>$uid))->fetchField();	
+	}
+	return $result;
+}
+
+function smv_vendor_accounts_existing_email($mail, $uid=NULL){
+	if(empty($uid)){
+		$result = db_query('SELECT uid FROM {users} WHERE LOWER(mail) = LOWER(:mail)', array('mail'=>$mail))->fetchField();		
+	}else{
+		$result = db_query('SELECT uid FROM {users} WHERE LOWER(mail) = LOWER(:mail) AND uid != :uid', 
+			array('mail'=>$mail,'uid'=>$uid))->fetchField();		
+	}
+	return $result;
+}
+
+function smv_vendor_accounts_existing_secondary_email($mail, $uid=NULL){
+	if(empty($uid)){
+		$result = db_query('SELECT entity_id from {field_data_field_vendor_email2} 
+			WHERE LOWER(field_vendor_email2_value) = LOWER(:mail)', array('mail'=>$mail))->fetchField();		
+	}else{
+		$result = db_query('SELECT entity_id from {field_data_field_vendor_email2} 
+			WHERE LOWER(field_vendor_email2_value) = LOWER(:mail) AND entity_id != :uid', array('mail'=>$mail,'uid'=>$uid))->fetchField();			
+	}	
+	return $result;
+}
+
+function smv_vendor_accounts_vendoraccount_number($uid=''){
+	global $user;
+
+	//$static = smv_vendor_accounts_vendoraccount_number();
+
+	if($uid==''){
+		$useraccount = user_load($user->uid);
+	}else{
+		$useraccount = user_load($uid);
+	}
+	
+	$user_info = field_get_items('user',$useraccount, 'field_vendor_account');
+	$result = check_plain($user_info[0]['value']);
+
+	return $result;
+}
+
+function smv_vendor_accounts_vendoraccount_main($uid=''){
+	global $user;
+
+	//$static = smv_vendor_accounts_vendoraccount_main();
+
+	if($uid==''){
+		$useraccount = user_load($user->uid);
+	}else{
+		$useraccount = user_load($uid);
+	}
+	
+	$user_info = field_get_items('user', $useraccount, 'field_vendor_main_account');
+	$result = check_plain($user_info[0]['value']);
+
+	return $result;
+}
+
+function smv_vendor_accounts_vendoraccount_sq_answer($uid){
+	global $user;
+
+	if(!isset($uid))
+		return false;
+
+	$useraccount = user_load($uid);
+	
+	$user_info = field_get_items('user',$useraccount, 'field_vendor_sq_answer');
+	$result = check_plain($user_info[0]['value']);
+
+	return $result;
+}
+
+function smv_vendor_accounts_vendoraccount_name($uid=''){
+	global $user;
+
+	if($uid==''){
+		$useraccount = user_load($user->uid);
+	}else{
+		$useraccount = user_load($uid);
+	}
+	
+	$user_info = field_get_items('user',$useraccount, 'field_vendor_name');
+	$result = check_plain($user_info[0]['value']);
+
+	return $result;
+}

@@ -1,0 +1,4 @@
+name = Vendor Generic Accounts
+description = Alter edit profile form to allow main vendor account to create generic users
+core = 7.x
+package = PRIMESOFT

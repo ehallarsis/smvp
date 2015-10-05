@@ -1,0 +1,48 @@
+<?php
+
+/**
+* Multistep creation of user base on ldap record
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+function smv_ldap_adduser_permission() {
+  return array(
+    'smv ldap_adduser_acctg user' => array(
+      'title' => t('Add accounting user'),
+      'description' => t('Allow menu access to add accounting user page'),
+    ),
+    'smv ldap_adduser user' => array(
+      'title' => t('Add user'),
+      'description' => t('Allow menu access to internal users'),
+    ),    
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function smv_ldap_adduser_menu() {
+  
+  $items = array();
+
+  $items['ldap/adduser'] = array(
+    'title' => 'Add Internal User',
+    'access arguments' => array('smv ldap_adduser user'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smv_ldap_adduser_form'),
+    'description' => 'Add internal user form',
+    'file' => 'smv_ldap_adduser.inc',
+  );
+
+  return $items;
+}
+
+function smv_ldap_existing_username_count($username){
+
+  $result = db_query("SELECT COUNT(uid) FROM {users} WHERE name = :name", 
+    array(':name' => $username))->fetchField();
+
+  return $result;
+}

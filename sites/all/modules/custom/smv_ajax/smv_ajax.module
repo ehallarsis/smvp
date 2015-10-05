@@ -1,0 +1,123 @@
+<?php
+
+/**
+* Ajax scipt to call upon viewing of PDF
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+function smv_ajax_menu() {
+
+  $items = array();
+
+ 	//when vendor click a new po,status will be change from "New" to "Viewed", notification will be sent to pomaker
+  $items['po/vendor-view'] = array(
+    'title' => 'Ajax Content',
+    'page callback' => 'smv_ajax_callback_vendor_view',
+    'access arguments' => array('access content'),
+  	'type' => MENU_CALLBACK,
+  );
+
+  //internal users inline update on po status
+  $items['po/change-status'] = array(
+    'title' => 'Ajax Content',
+    'page callback' => 'smv_ajax_callback_po_change_status',
+    'access arguments' => array('access content'),
+  	'type' => MENU_CALLBACK,
+  );   
+
+  //when notification was viewed/clicked, add class to identify that the user already viewed the notification
+  $items['notification/view'] = array(
+    'title' => 'Ajax Content',
+    'page callback' => 'smv_ajax_callback_notification_view',
+    'access arguments' => array('access content'),
+  	'type' => MENU_CALLBACK,
+  );  
+
+  return $items;
+}
+
+function smv_ajax_callback_vendor_view(){
+	global $user;
+
+	//variables
+	$nid = $_GET['nid'];
+
+	//check if vendor is main account
+	$currentuser = user_load($user->uid);
+  $wrapper = entity_metadata_wrapper('user', $currentuser);
+  $mainaccount = $wrapper->field_vendor_main_account->value();
+
+  if($mainaccount == 1){
+
+		//update po
+		$node = node_load($nid);
+		$node_wrapper = entity_metadata_wrapper('node',$node);
+		
+		//get current status of po
+		$current_status = $node_wrapper->field_po_status->value(); 
+		$is_viewed =  $node_wrapper->field_po_viewed->value(); 
+
+		if($is_viewed != 1){
+			$status = ($current_status == "New") ? "Viewed" : $current_status;
+			$node_wrapper->field_po_status = $status; 
+			$node_wrapper->field_po_viewed = 1; 
+			$node_wrapper->save();
+		}else{
+			$status = $current_status;	
+		}
+	 
+	  $result = array('nid'=>$nid,'po_status'=>$status);
+	  echo json_encode($result);	
+	}
+}
+
+function smv_ajax_callback_notification_view(){
+	global $user;
+
+	//variables
+	$mlid = $_GET['mlid'];
+
+	$record = db_query('SELECT mlid, viewed, referenceId FROM {mail_logger} 
+		WHERE mlid = :id',array(':id' => $mlid))->fetchObject();
+
+	if($record){
+		if($record->viewed == 0 && $user->uid == $record->referenceId){
+			db_update('mail_logger') 
+		  ->fields(array(
+		    'viewed' => 1,
+		  ))
+		  ->condition('mlid', $mlid)
+		  ->execute();			
+		}
+	}
+}
+
+function smv_ajax_callback_po_change_status(){
+	global $user;
+
+	
+	//variables
+	$nid = $_GET['nid'];	
+	$new_status = $_GET['status'];
+
+	//update po
+	$node = node_load($nid);
+	$node_wrapper = entity_metadata_wrapper('node',$node);
+	
+	//get current status of po
+	$current_status = $node_wrapper->field_po_status->value(); 
+
+	if($new_status != $current_status){
+		$status = $new_status;
+		$node_wrapper->field_po_status = $status; 		
+		$node_wrapper->save();	
+	}else{
+		$status = $current_status;
+	}
+
+  $result = array('nid'=>$nid,'po_status'=>$status);
+  echo json_encode($result);	
+  
+}

@@ -1,0 +1,4 @@
+name = User Frontpage
+description = A customize frontpage redirection depending on user roles
+core = 7.x
+package = PRIMESOFT

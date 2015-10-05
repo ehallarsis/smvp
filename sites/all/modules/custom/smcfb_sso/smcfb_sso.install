@@ -1,0 +1,107 @@
+<?php
+
+/**
+ * @file
+ * 
+ */
+ 
+ /**
+ * Implements hook_schema().
+ */
+ 
+function smcfb_sso_schema() {
+  $schema['smcfb_ldap_settings'] = array(
+	'description' => 'LDAP Settings',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "ID of each setting.",
+      ),
+      'host' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "IP address of host",
+      ),
+      'port' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Port number",
+      ),
+      'basedn' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Base DN",
+      ),
+      'user' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Service username",
+      ),
+      'password' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Service username's password",
+      ),
+      'cn' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Service username's CN",
+      ),
+    ),
+    'primary key' => array('id')
+  );
+
+  $schema['smcfb_other_basedn'] = array(
+	'description' => 'Other OU baseDN',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "ID of each basedn.",
+      ),
+      'dn' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "Other OU's baseDN",
+      ),
+    ),
+    'primary key' => array('id')
+  );
+
+  return $schema;
+}
+
+function smcfb_sso_install() {
+
+  $query = db_insert('smcfb_ldap_settings')
+    ->fields(array(
+      'id' => 1,
+      'host' => '10.246.199.108',
+      'port' => 389,
+      'basedn' => 'OU=Test OU,OU=PH,DC=smprime,DC=smuat,DC=ph',
+      'user' => 'test23',
+      'password' => base64_encode('test@123'),
+      'cn' => 'test23',
+    ))
+  ->execute();
+}
+
+function smcfb_sso_uninstall() {
+  db_drop_table('smcfb_ldap_settings');
+  db_drop_table('smcfb_other_basedn');
+}

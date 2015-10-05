@@ -1,0 +1,31 @@
+<?php
+
+/*
+ * Implements hook_menu().
+ */
+function smv_frontpage_menu() {
+  
+  $items = array();
+ 
+	$items['user-frontpage'] = array( 
+    'title' => 'Home', 
+    'page callback' => '_smv_frontpage_callback', 
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+	return $items;
+}
+
+function _smv_frontpage_callback(){
+	global $user;
+
+	if(in_array('anonymous user',$user->roles)){
+		return drupal_get_form('user_login');
+	}	
+
+	return array(
+		'#markup' => '',
+	);
+
+}

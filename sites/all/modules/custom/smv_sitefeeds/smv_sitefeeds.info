@@ -1,0 +1,4 @@
+name = Site Feeds Import 
+description = Alter feeds import functionality using feeds.api.php hooks
+core = 7.x
+package = PRIMESOFT

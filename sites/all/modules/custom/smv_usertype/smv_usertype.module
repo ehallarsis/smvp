@@ -1,0 +1,287 @@
+<?php
+
+/**
+* User type management page
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+function smv_usertype_views_api() {
+    return array(
+        'api' => '3',
+    );
+}
+
+function smv_usertype_permission() {
+
+	$perms = array();
+  
+  $perms['smv adminster usertype'] = array(
+    'title' => t('Administer user type'),
+    'description' => t('Allow user to manage sitewide user type.'),
+  );
+
+  $perms['smv_po_view_all'] = array(
+    'title' => t('View all Purchase Order'),
+    'description' => t('Grants access to "Purchase Order" module. This allows viewing of all Purchase Order.'),
+  );
+
+  $perms['smv_po_view_by_po_org'] = array(
+    'title' => t('View Purchase Order by PO Organization'),
+    'description' => t('Grants access to "Purchase Order" module. This allows viewing of Purchase Order under logged-in user PO organization.'),
+  );
+
+  $perms['smv_po_change_status'] = array(
+    'title' => t('Change Purchase Order status'),
+    'description' => t('Grants access to "Purchase Order" module. This allows changing of Purchase Order status to "Cancelled" or "Revised".'),
+  );
+
+  $perms['smv_nonpo_view_all'] = array(
+    'title' => t('View all Non-PO'),
+    'description' => t('Grants access to "Non PO" module. This allows user to view all Non-PO.'),
+  );
+
+  $perms['smv_notifications_view_own'] = array(
+    'title' => t('View own Notifications'),
+    'description' => t('Grants access to "Notifications" module. This is a facility to enable user view own site notifications.'),
+  );
+
+  $perms['smv_notifications_view_all'] = array(
+    'title' => t('View all Notifications'),
+    'description' => t('Grants access to "Notifications" module. This is a facility to enable user view all site notifications.'),
+  );
+
+  $perms['smv_payment_voucher_view_all'] = array(
+    'title' => t('View all Payment Voucher'),
+    'description' => t('Grants access to "Payment Voucher" module. This allows user to view all Payment Voucher.'),
+  );
+
+  $perms['smv_bir_view_all'] = array(
+    'title' => t('View all BIR Form 2307'),
+    'description' => t('Grants access to "BIR" module. This allows user to view all BIR Form 2307.'),
+  );
+
+  /*$perms['smv_archive_view_all'] = array(
+    'title' => t('View all Archive'),
+    'description' => t('Grants access to "Archive" module. This allows user to view all archive PO, Non PO, Payment Voucher, and BIR Form 2307.'),
+  );*/
+
+  $perms['smv_archive_po_view_all'] = array(
+    'title' => t('View all Archive Purchase Order'),
+    'description' => t('Grants access to "Archive" module. This allows user to view all archive Purchase Order.'),
+  );
+
+  $perms['smv_archive_nonpo_view_all'] = array(
+    'title' => t('View all Archive Non PO'),
+    'description' => t('Grants access to "Archive" module. This allows user to view all archive Non PO.'),
+  );
+
+  $perms['smv_archive_pv_view_all'] = array(
+    'title' => t('View all Archive Payment Voucher'),
+    'description' => t('Grants access to "Archive" module. This allows user to view all archive Payment Voucher.'),
+  );  
+
+  $perms['smv_archive_bir_view_all'] = array(
+    'title' => t('View all Archive BIR Form 2307'),
+    'description' => t('Grants access to "Archive" module. This allows user to view all archive BIR Form 2307.'),
+  );    
+
+  $perms['smv_reports_po_monitoring'] = array(
+    'title' => t('View PO Monitoring Reports'),
+    'description' => t('Grants access to "Reports" module. This allows user to view PO Monitoring report.'),
+  );
+
+  $perms['smv_reports_payment_list'] = array(
+    'title' => t('View Payment List Reports'),
+    'description' => t('Grants access to "Reports" module. This allows user to view Payment List report.'),
+  );
+
+  $perms['smv_reports_pending_or'] = array(
+    'title' => t('View Pending OR Reports'),
+    'description' => t('Grants access to "Reports" module. This allows user to view Pending OR report.'),
+  );
+
+  return $perms;
+}
+
+function smv_usertype_menu() {
+  $items = array();
+ 
+	$items['usertype/add'] = array( 
+    'title' => 'Add User Type', 
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('smv_usertype_form'),
+    'access arguments' => array('smv adminster usertype'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_usertype.admin.inc',
+  );
+
+  $items['usertype/%/edit'] = array( 
+    'title' => 'Edit User Type', 
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('smv_usertype_form',1),
+    'access arguments' => array('smv adminster usertype'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_usertype.admin.inc',
+  );
+
+  $items['usertype/%/delete'] = array(
+    'title' => 'Delete User Type',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smv_usertype_delete_form', 1),
+    'access arguments' => array('smv adminster usertype'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'smv_usertype.admin.inc',
+  );  
+
+	return $items;
+}
+
+function smv_usertype_internaluser_landingpage(){
+  global $user;
+
+  $account = user_load($user->uid);
+
+  //purchase order - view all
+  if(user_access('smv_po_view_all',$account)){
+    drupal_goto('list-purchase-order');
+  }
+
+  //purchase order - view by org
+  elseif(!user_access('smv_po_view_all',$account) && user_access('smv_po_view_by_po_org',$account)){
+    drupal_goto('list-purchase-order-org');
+  }
+
+  //non-po
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && user_access('smv_nonpo_view_all',$account)){
+    drupal_goto('list-non-po');
+  }
+
+  //notifications
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && user_access('smv_notifications_view_own',$account)){
+    drupal_goto('list-notifications');
+  }
+
+  //payment voucher - view all
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && user_access('smv_payment_voucher_view_all',$account)){
+    drupal_goto('list-payment-voucher');
+  }
+
+  //bir
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && user_access('smv_bir_view_all',$account)){
+    drupal_goto('list-bir-form');
+  }
+
+  //archive - po
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && user_access('smv_archive_po_view_all',$account)){
+    drupal_goto('archive/purchase-order');
+  }
+
+  //po monitoring
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && !user_access('smv_archive_view_all',$account) && user_access('smv_reports_po_monitoring',$account)){
+    drupal_goto('reports/po-monitoring');
+  }
+
+  //payment list
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && !user_access('smv_archive_view_all',$account) && !user_access('smv_reports_po_monitoring',$account) && user_access('smv_reports_payment_list',$account)){
+    drupal_goto('reports/payment-list');
+  }  
+  
+  //pending or
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && !user_access('smv_archive_view_all',$account) && !user_access('smv_reports_po_monitoring',$account) && !user_access('smv_reports_payment_list',$account) && user_access('smv_reports_pending_or',$account) ){
+    drupal_goto('reports/pending-or');
+  }  
+  else{
+    drupal_goto('user/' . $user->uid);
+  }
+}
+
+function smv_usertype_internaluser_destination(){
+  global $user;
+
+  $account = user_load($user->uid);
+
+  //purchase order - view all
+  if(user_access('smv_po_view_all',$account)){
+    return 'list-purchase-order';
+  }
+
+  //purchase order - view by org
+  elseif(!user_access('smv_po_view_all',$account) && user_access('smv_po_view_by_po_org',$account)){
+    return 'list-purchase-order-org';
+  }
+
+  //non-po
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && user_access('smv_nonpo_view_all',$account)){
+    return 'list-non-po';
+  }
+
+  //notifications
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && user_access('smv_notifications_view_own',$account)){
+    return 'list-notifications';
+  }
+
+  //payment voucher - view all
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && user_access('smv_payment_voucher_view_all',$account)){
+    return 'list-payment-voucher';
+  }
+
+  //bir
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && user_access('smv_bir_view_all',$account)){
+    return 'list-bir-form';
+  }
+
+  //archive - po
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && user_access('smv_archive_po_view_all',$account)){
+    return 'archive/purchase-order';
+  }
+
+  //po monitoring
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && !user_access('smv_archive_view_all',$account) && user_access('smv_reports_po_monitoring',$account)){
+    return 'reports/po-monitoring';
+  }
+
+  //payment list
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && !user_access('smv_archive_view_all',$account) && !user_access('smv_reports_po_monitoring',$account) && user_access('smv_reports_payment_list',$account)){
+    return 'reports/payment-list';
+  }  
+  
+  //pending or
+  elseif(!user_access('smv_po_view_all',$account) && !user_access('smv_po_view_by_po_org',$account) && !user_access('smv_nonpo_view_all',$account) && !user_access('smv_notifications_view_own',$account) && !user_access('smv_payment_voucher_view_all',$account) && !user_access('smv_bir_view_all',$account) && !user_access('smv_archive_view_all',$account) && !user_access('smv_reports_po_monitoring',$account) && !user_access('smv_reports_payment_list',$account) && user_access('smv_reports_pending_or',$account) ){
+    return 'reports/pending-or';
+  }  
+  else{
+    return url('user/'.$user->uid.'/edit');
+  }
+}
+
+function smv_usertype_internaluser_assigned_rid($uid){
+
+  if(!isset($uid))
+    return FALSE;
+
+  $rid = db_query('SELECT rid FROM {users_roles} 
+    WHERE rid != 2 AND rid != 19 AND uid = :uid LIMIT 1',
+    array(':uid'=>$uid))->fetchField();
+
+  return $rid;
+}
+
+/*
+ * Return the allowed tids (po organization)
+ */
+function smv_usertype_internaluser_org_change_status($rid){
+  
+  $result = db_query('SELECT org_tids FROM {smv_usertype_org_status_change}
+    WHERE rid = :rid', array(':rid' => $rid))->fetchField();  
+
+  if($result){
+    return $result;
+  }
+
+  return false;
+}

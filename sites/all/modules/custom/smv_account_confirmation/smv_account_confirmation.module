@@ -1,0 +1,222 @@
+<?php
+
+/**
+* Vendor account confirmation on initial login
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+function smv_account_confirmation_permission(){
+	return array(
+    	'smv account confirmation' => array(
+	      	'title' => t('Account verification'),
+	      	'description' => t('Allows vendor users to confirm his/her own account.'),
+    	),    	
+  	);
+}
+
+function smv_account_confirmation_menu() {
+	$items = array();
+
+	$items['user-verification/%/%/%'] = array(
+  	'title' => 'Verify user acccount',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('account_verification_confirm', 1, 2, 3),
+		'access callback' => TRUE,	
+    'type' => MENU_CALLBACK,
+	);
+
+  $items['account-login/%/%/%'] = array(
+    'title' => 'Alias Account',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('account_verification_alias_login', 1, 2, 3),
+    'access callback' => TRUE,  
+    'type' => MENU_CALLBACK,
+  );
+
+	return $items;
+}
+
+function account_verification_alias_login($form, &$form_state, $uid, $timestamp, $hashed_pass, $action = NULL){
+  global $user;
+
+  //check first if there's a different user currently logged-in
+  if($user->uid != 0 && $uid != $user->uid){
+    $reset_link_account = user_load($uid);
+    if (!empty($reset_link_account)) {
+      drupal_set_message(t('Another user (%other_user) is already logged-in on this computer, but you tried to use a login link of user %resetting_user. Please <a href="!logout">logout</a> and try using the link again.',
+        array('%other_user' => $user->name, '%resetting_user' => $reset_link_account->name, '!logout' => url('user/logout'))),'error');
+      drupal_goto("<front>");  
+    }   
+  }
+
+  //process only if no logged-in user OR the user requesting is the current user 
+  if( $user->uid == 0 || ($user->uid != 0 && $uid == $user->uid) ){
+  
+    $account = user_load($uid);
+
+    if (isset($account) && $account->status == 1) {
+      
+      // Deny one-time login to blocked ip address.
+      if (drupal_is_denied(ip_address())) {
+        drupal_set_message(t('You have tried to use a one-time login for an IP address which has been blocked.'), 'error');
+        user_logout();
+        drupal_goto("<front>");         
+      }
+
+      // Deny one-time login to accounts without permission
+      if (!user_access('smv account confirmation', $account)) {
+        drupal_set_message(t('You have tried to use a one-time login for an account which is no longer permitted to use account verification.'), 'error');    
+        drupal_goto("<front>");     
+      }
+
+      if($account->uid && $hashed_pass == smv_account_confirmation_pass_rehash($account->name, 'aliasconfirm')){
+
+        drupal_set_message(t('This is a temporary login link. Please update your account information.'));
+
+        if($user->uid == 0){
+          $user = $account;
+          user_login_finalize();
+        }               
+      }else{
+        drupal_set_message(t('You have tried to use a one-time login link that has either been used or invalid.'), 'error');
+        drupal_goto("<front>"); 
+      }
+
+    }
+  }
+
+}
+
+function account_verification_confirm($form, &$form_state, $uid, $timestamp, $hashed_pass, $action = NULL) {
+  global $user;
+
+  //check first if there's a different user currently logged-in
+  if($user->uid != 0 && $uid != $user->uid){
+    $reset_link_account = user_load($uid);
+    if (!empty($reset_link_account)) {
+      drupal_set_message(t('Another user (%other_user) is already logged-in on this computer, but you tried to use a one-time verification link of user %resetting_user. Please <a href="!logout">logout</a> and try using the link again.',
+        array('%other_user' => $user->name, '%resetting_user' => $reset_link_account->name, '!logout' => url('user/logout'))),'error');
+    }   
+  }
+
+  //process only if no logged-in user OR the user requesting is the current user 
+  if( ($user->uid == 0) || ($user->uid != 0 && $uid == $user->uid) ){
+    
+    // Time out, in seconds, until login URL expires. 24 hours = 86400 seconds.
+    $timeout = 86400;
+    $current = REQUEST_TIME;
+
+    $account = user_load($uid);
+
+    if ($timestamp < $current && isset($account) && $account->status == 1) {
+      
+      // Deny one-time login to blocked ip address.
+      if (drupal_is_denied(ip_address())) {
+        drupal_set_message(t('You have tried to use a one-time login for an IP address which has been blocked.'), 'error');
+        user_logout();
+        drupal_goto("<front>");         
+      }
+
+      // Deny one-time login to accounts without permission
+      if (!user_access('smv account confirmation', $account)) {
+        drupal_set_message(t('You have tried to use a one-time login for an account which is no longer permitted to use account verification.'), 'error');    
+        drupal_goto("<front>");     
+      }
+
+      //get the difference between time
+      $timestamp_diff = $current - $timestamp;
+
+      if($timestamp_diff > $timeout){
+        drupal_set_message(t('You have tried to use a one-time verification link that has either been used or is no longer valid.'));
+        drupal_goto("<front>");     
+      }elseif($account->uid && $timestamp <= $current && $hashed_pass == smv_account_confirmation_pass_rehash($account->name, 'confirm')){
+
+        //remove 'pre-authorized' role then add 'vendor' role
+        smv_account_remove_role_from_user($account->uid, 'pre-authorized');
+        smv_account_add_role_to_user($account->uid, 'vendor');
+
+        //send email
+        rules_invoke_component('rules_account_verified_email', $account->uid, $account);        
+
+        if($user->uid == 0){
+          $user = $account;
+          user_login_finalize();
+        }        
+
+        drupal_set_message(t('You have successfully verified your account.'));
+        drupal_goto("<front>");     
+      
+      }else{
+        drupal_set_message(t('You have tried to use a one-time login link that has either been used or invalid.'), 'error');
+        drupal_goto("<front>"); 
+      }
+    }
+  }
+
+}
+
+function smv_account_confirmation_pass_rehash($name, $key) {
+  //return drupal_hmac_base64($timestamp, drupal_get_hash_salt() . $password);
+  return drupal_hmac_base64(drupal_get_hash_salt() .$name, $key);
+}
+
+/**
+ * Add a role to a user.
+ *
+ * @param $user
+ *   User object or user ID.
+ * @param $role_name
+ *   String value of role to be added.
+ */
+function smv_account_add_role_to_user($user, $role_name) {
+  // For convenience, we'll allow user ids as well as full user objects.
+  if (is_numeric($user)) {
+    $user = user_load($user);
+  }
+  // If the user doesn't already have the role, add the role to that user.
+  $key = array_search($role_name, $user->roles);
+  if ($key == FALSE) {
+    // Get the rid from the roles table.
+    $roles = user_roles(TRUE);
+    $rid = array_search($role_name, $roles);
+    if ($rid != FALSE) {
+      $new_role[$rid] = $role_name;
+      $all_roles = $user->roles + $new_role; // Add new role to existing roles.
+      user_save($user, array('roles' => $all_roles));
+    }
+  }
+}
+
+/**
+ * Remove a role from a user.
+ *
+ * @param $user
+ *   User object or user ID.
+ * @param $role_name
+ *   String value of role to be removed.
+ */
+function smv_account_remove_role_from_user($user, $role_name){
+  // For convenience, we'll allow user ids as well as full user objects.
+  if (is_numeric($user)) {
+    $user = user_load($user);
+  }
+  // Only remove the role if the user already has it.
+  $key = array_search($role_name, $user->roles);
+  if ($key == TRUE) {
+    // Get the rid from the roles table.
+    $roles = user_roles(TRUE);
+    $rid = array_search($role_name, $roles);
+    if ($rid != FALSE) {
+      // Make a copy of the roles array, without the deleted one.
+      $new_roles = array();
+      foreach($user->roles as $id => $name) {
+        if ($id != $rid) {
+          $new_roles[$id] = $name;
+        }
+      }
+      user_save($user, array('roles' => $new_roles));
+    }
+  }
+}

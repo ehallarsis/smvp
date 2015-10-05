@@ -1,0 +1,4 @@
+name = SM Vendor VIS Invite
+description = Custom module for SM Vendor VIS invite.
+core = 7.x
+package = PRIMESOFT

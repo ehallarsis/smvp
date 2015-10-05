@@ -1,0 +1,1173 @@
+<?php
+
+/**
+* Feeds importer custom event utilizing Feeds API (feeds.api.php)
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/
+
+/**
+ * Implements hook_mail()
+ */
+function smv_sitefeeds_mail($key, &$message, $params) {
+  global $base_url;
+  global $user;
+
+	$site_name = variable_get('site_name', 'Drupal');
+	$site_url	 = $base_url;
+  $site_mail = variable_get('site_mail', ini_get('sendmail_from'));
+
+  $options = array(
+    'langcode' => $message['language']->language,
+  );
+
+  switch ($key) {
+    case 'smv_sitefeeds_mail_feeds_vendor_save':
+      $vendor = $params['account'];
+      $vendorname = smv_vendor_accounts_vendoraccount_name($vendor->uid);      
+      $message['subject'] = t('Account was created at !site-name', array('!site-name' => $site_name), $options);
+      $message['body'][] =  t('Hi !vendor-name:',array('!vendor-name' => $vendorname));
+      $message['body'][] = t('This is to inform you that you have been enrolled to use the SM Vendor Portal. Please visit !site-url to log-in using the following details:', array('!site-url' => $site_url), $options);
+      $message['body'][] = $params['message'];  
+      $message['body'][] =  t('If you have any questions, please contact our SM Vendor Portal Support Team at !site-mail and we will get back to you within 24 hours.',array('!site-mail'=>$site_mail));
+      $message['body'][] = t("Sincerely,\n\nSM Vendor Portal Team");
+      break;
+    case 'smv_sitefeeds_mail_account_confirmation':
+      $timestamp = REQUEST_TIME;
+      $pass_rehash = drupal_hmac_base64(drupal_get_hash_salt() . $user->name, 'confirm');
+      $confirmation_link = url("user-verification/$user->uid/$timestamp/" . $pass_rehash, array('absolute' => TRUE)); 
+      $message['subject'] = t('Account verification at !site-name', array('!site-name' => $site_name), $options);
+      $message['body'][] = t("A request for account verification has been made at !site-name. Verify the account by clicking this link or copying and pasting it to your browser:\n\n!confirmation_link\n", 
+        array('!site-name' => $site_name, '!confirmation_link' => $confirmation_link), $options);
+      //$message['body'][] = $params['message'];
+      $message['body'][] = t('This link can only be used once to confirm your account. It expires after one day and nothing will happen if  not used.');
+      break;      
+  }
+}
+
+/**
+ * Implements hook_feeds_before_update()
+ * Invoked before a feed item is updated/created/replaced.
+ *
+ * Mostly deals with deletion of existing field collection values to avoid redundancy in data
+ */
+function smv_sitefeeds_feeds_before_import(FeedsSource $source){
+
+  //Remove current items 
+  //@TODO: revise this
+  if($source->id == 'pending_or_items'){    
+    $nid = 187;
+    smv_sitefeeds_delete_fieldcollection_items($nid, 'field_pending_or_items');  
+  } 
+}
+
+/**
+ * Implements hook_feeds_presave()
+ * Invoked before a feed item is saved.
+ */
+function smv_sitefeeds_feeds_presave(FeedsSource $source, $entity, $item) {
+
+  //vendor feeds validation
+  if($source->id == 'vendor_feeds'){
+    $email1 = $item[3];
+    $email2 = $item[4];
+    $uid    = ($entity->feeds_item->entity_id != 0) ? $entity->feeds_item->entity_id : NULL;
+
+    //primary email should be valid all the time
+    if(!valid_email_address($email1)){
+      $entity->feeds_item->skip = TRUE;
+    }
+
+    //primary email validation
+    if(smv_vendor_accounts_existing_email($email1,$uid)){
+      $entity->feeds_item->skip = TRUE;
+    }      
+
+    //existing account
+    if($entity->feeds_item->entity_id != 0){
+
+      $account  = user_load($uid);
+
+      //account is already verified, restrict same email address
+      if(in_array('vendor', $account->roles) && $email1 == $email2){
+        $entity->feeds_item->skip = TRUE;
+      }
+    } 
+
+    if($email1 != $email2){      
+      //submitted email2 already exists as another user primary email
+      if(smv_vendor_accounts_existing_email($email2, $uid)){
+        $entity->feeds_item->skip = TRUE;
+      }
+      //submitted email2 already exists as another user primary email
+      if(smv_vendor_accounts_existing_secondary_email($email2, $uid)){
+        $entity->feeds_item->skip = TRUE;
+      }                    
+    }            
+  }
+}
+
+/**
+ * Implements hook_feeds_before_update()
+ * Invoked before a feed item is updated/created/replaced.
+ *
+ * Mostly deals with deletion of existing field collection values to avoid redundancy in data
+ */
+function smv_sitefeeds_feeds_before_update(FeedsSource $source, $item, $entity_id){
+
+  //update PO, remove current items
+  if($source->id == 'po_feeds' && !empty($entity_id) && $item['po_sync_status'] == 1 && $item['po_revised'] == 1){    
+    smv_sitefeeds_delete_fieldcollection_items($entity_id, 'field_po_details');  
+  } 
+  
+  //update GR, remove current items
+  if($source->id == 'gr_feeds' && !empty($entity_id) && $item['sync_status'] == 1){    
+    smv_sitefeeds_delete_fieldcollection_items($entity_id, 'field_gr_items');  
+  } 
+
+  //update IR, remove current items
+  if($source->id == 'ir_feeds' && !empty($entity_id) && $item['sync_status'] == 1){    
+    smv_sitefeeds_delete_fieldcollection_items($entity_id, 'field_ir_items');  
+  } 
+
+  //update PD, remove current items
+  if($source->id == 'pd_feeds' && !empty($entity_id) && $item['sync_status'] == 1){    
+    smv_sitefeeds_delete_fieldcollection_items($entity_id, 'field_pd_items');  
+  } 
+
+  //update PV, remove current items
+  if($source->id == 'pd_feeds' && !empty($entity_id) && $item['sync_status'] == 1){    
+    smv_sitefeeds_delete_fieldcollection_items($entity_id, 'field_pv_items');  
+  }   
+}
+
+
+/**
+ * Delete field collection items
+ * 
+ * @param string $nid
+ *   The node id
+ * @param string $fc
+ *   The field collection field name
+ */
+function smv_sitefeeds_delete_fieldcollection_items($nid, $fc){
+  $node = node_load($nid);
+  $field_collections = field_get_items('node', $node, $fc);
+  if($field_collections){
+    foreach ($field_collections as $item) {
+      $field_collection = entity_load_single('field_collection_item', $item['value']);
+      $field_collection->delete();
+    }
+  }
+}
+
+
+/**
+ * Implements hook_feeds_after_save()
+ * Invoked after a feed item has been saved.
+ */
+function smv_sitefeeds_feeds_after_save(FeedsSource $source, $entity, $item, $entity_id){
+
+	/**** VENDOR ***********/
+
+  $language = language_default();
+
+	//Vendor Feeds item, send email if user is new
+	if($source->id == 'vendor_feeds' && empty($entity_id)){
+		$account = user_load($entity->uid);
+		$unencrypted_pass = $item[2];
+
+		if($account && !empty($unencrypted_pass)){
+      rules_invoke_component('rules_account_creation_email', $account, $unencrypted_pass);
+		}
+	}  
+
+  /**** PURCHASE ORDER ***********/
+  
+  //Exception file - Save to heartbeat log
+  if($source->id == 'po_feeds' && empty($entity_id) && $item['po_sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }    
+
+  //Revised PO
+  if($source->id == 'po_feeds' && !empty($entity_id) && $item['po_sync_status'] == 1 && $item['po_revised'] == 1){
+    $ponumber = $item['po_number'];
+
+    //get all nid (goods receipt, invoice receipt, payment details)
+    $gr_nid = smv_sitefeeds_goodsreceipt_nid($ponumber);
+    $ir_nid = smv_sitefeeds_invoicereceipt_nid($ponumber);
+    $pd_nid = smv_sitefeeds_paymentdetails_nid($ponumber);
+
+    //delete records if there's any (gr,ir,pd)
+    smv_sitefeeds_delete_record($gr_nid);
+    smv_sitefeeds_delete_record($ir_nid);
+    smv_sitefeeds_delete_record($pd_nid);
+  }
+
+  /**** GOODS RECIEPT ***********/
+
+  //Exception file - Save to heartbeat log
+  if($source->id == 'gr_feeds' && empty($entity_id) && $item['sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }
+
+  //New goods receipt
+  if($source->id == 'gr_feeds' && empty($entity_id) && $item['sync_status'] == 1 && $item['po_number'] != ""){
+    $ponumber = $item["po_number"];
+    $new_status = 'Viewed';
+    $allowed  = array('New');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+  } 
+
+  //Line Items
+  if($source->id == 'gr_details_feeds' && $item[5] != ""){
+
+    $lineno    = $item[6];
+    $ponumber  = $item[5];
+    $delivered = $item[7];
+
+    //if the feeds line item is full delivery, 
+    //all same line item number within the specified PO will be updated also to full delivery
+    smv_sitefeeds_update_line_delivery_status($ponumber, $lineno, $delivered);
+
+    //check if line item is full delivered and has invoice
+    $lineno_has_invoice = smv_sitefeeds_lineitem_has_invoice($ponumber, $lineno);
+
+    if($delivered == 1 && $lineno_has_invoice){
+      smv_sitefeeds_update_po_line_status($ponumber, $lineno, "Invoiced"); 
+    }
+
+    // Added by: Emmanuel P. Hallarsis
+    // Update GR status
+    smv_sitefeeds_update_gr_status($ponumber);
+  }   
+
+  /**** INVOICE RECIEPT ***********/
+
+  //Exception file - Save to heartbeat log
+  if($source->id == 'ir_feeds' && empty($entity_id) && $item['sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }
+
+  //New invoice reciept
+  if($source->id == 'ir_feeds' && empty($entity_id) && $item['sync_status'] == 1 && $item['po_number'] != ""){
+    $ponumber = $item["po_number"];
+    $new_status = 'Viewed';
+    $allowed  = array('New');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+  }
+
+  //Line Items
+  if($source->id == 'ir_details_feeds' && $item[4] != ""){
+    $lineno    = $item[4];
+    $ponumber  = $item[3];
+    $status = 'Invoiced';
+
+    //check if line item is full delivered and has invoice
+    $lineno_delivery_complete = smv_sitefeeds_lineitem_delivery_complete($ponumber,$lineno);
+
+    if($lineno_delivery_complete){
+      smv_sitefeeds_update_po_line_status($ponumber, $lineno, "Invoiced"); 
+    }    
+
+    // Added by: Emmanuel P. Hallarsis
+    // Update IR status
+    smv_sitefeeds_update_ir_status($ponumber);
+  }
+
+  /**** PAYMENT DETAILS ***********/
+
+  //Exception file - Save to heartbeat log
+  if($source->id == 'pd_feeds' && empty($entity_id) && $item['sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }
+
+  //New payment details
+  if($source->id == 'pd_feeds' && empty($entity_id) && $item['sync_status'] == 1 && $item['po_number'] != ""){
+    $ponumber = $item["po_number"];
+    $new_status = 'Viewed';
+    $allowed  = array('New');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+  }
+
+  if($source->id == 'pd_details_feeds' && $item[3] != ""){
+    $ponumber = $item[3];
+    $lineno   = $item[4];
+    $status   = 'Paid';
+    smv_sitefeeds_update_po_line_status($ponumber, $lineno, $status); 
+
+    //get line items
+    $po_lineitems = smv_sitefeeds_po_lineitems($ponumber);    
+    $pd_lineitems = smv_sitefeeds_paymentdetails_lineitems($ponumber);
+
+    //count array results
+    $paid_lineitems     = array_intersect($po_lineitems, $pd_lineitems);
+    $po_lineitems_count = count($po_lineitems);
+    $total_paid_items   = count($paid_lineitems);
+
+    //update po status if all items was paid
+    if($total_paid_items == $po_lineitems_count){
+
+      $pd_nid = smv_sitefeeds_paymentdetails_nid($ponumber);
+      $pd_node = node_load($pd_nid);
+
+      $wrapper = entity_metadata_wrapper('node', $pd_node);
+      $pd_dates = array();
+      foreach ($wrapper->field_pd_items as $items) {
+        $pd_dates[] = $items->field_pd_line_date->value();
+      }
+
+      $latest_paymentdate = !empty($pd_dates) ? max($pd_dates) : '';
+
+      $new_status = 'Paid';
+      $allowed  = array('New','Viewed');      
+      $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed, $latest_paymentdate);
+      if(!$status){
+        drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+      }    
+    }
+
+    // Added by: Emmanuel P. Hallarsis
+    // Update PD status
+    smv_sitefeeds_update_pd_status($ponumber);
+  }
+
+  /**** NON PO ***********/
+
+  //Exception file - Save to heartbeat log
+  if($source->id == 'nonpo_feeds' && empty($entity_id) && $item['sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }  
+
+  /**** PAYMENT VOUCHER ***********/
+
+  //Exception file - Save to heartbeat log
+  if($source->id == 'pv_feeds' && empty($entity_id) && $item['sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }    
+
+  /**** BIR ***********/
+
+  //Exception file - Save to heartbeat log
+  if($source->id == 'bir_feeds' && empty($entity_id) && $item['sync_status'] == 0){
+    $message_id = $item['exception_type'];
+    smv_sitefeeds_heartbeat_insert($message_id, $entity->nid, $entity->uid);
+  }   
+
+}
+
+/**
+ * Get the Purchase Order nid base on po number
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ */
+function smv_sitefeeds_purchaseorder_nid($ponumber){
+
+  if(!isset($ponumber)){
+    return FALSE;
+  }
+
+  $id = db_query('SELECT n.nid FROM {node} n 
+    LEFT JOIN {field_data_field_po_sync_status} ps ON ps.entity_id = n.nid 
+    LEFT JOIN {field_data_field_po_number} pn ON pn.entity_id = n.nid      
+    WHERE n.type = :type AND ps.field_po_sync_status_value = :status AND pn.field_po_number_value = :ponum',  
+    array('type'=>'purchase_order', 'status' => 1, 'ponum'=> $ponumber))->fetchField();
+
+  if($id){
+    return $id;
+  }else{
+    return false;
+  }
+}
+
+/**
+ * Get the Goods Receipt nid base on po number
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ */
+function smv_sitefeeds_goodsreceipt_nid($ponumber){
+
+  if(!isset($ponumber)){
+    return FALSE;
+  }
+
+  $id = db_query('SELECT n.nid FROM {node} n 
+    LEFT JOIN {field_data_field_gr_sync_status} ps ON ps.entity_id = n.nid 
+    LEFT JOIN {field_data_field_gr_po_number} pn ON pn.entity_id = n.nid      
+    WHERE n.type = :type AND ps.field_gr_sync_status_value = :status AND pn.field_gr_po_number_value = :ponum',  
+    array('type'=>'goods_receipt', 'status' => 1, 'ponum'=> $ponumber))->fetchField();
+
+  if($id){
+    return $id;
+  }else{
+    return false;
+  }
+}
+
+/**
+ * Get the Invoice Receipt nid base on po number
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ */
+function smv_sitefeeds_invoicereceipt_nid($ponumber){
+
+  if(!isset($ponumber)){
+    return FALSE;
+  }
+
+  $id = db_query('SELECT n.nid FROM {node} n 
+    LEFT JOIN {field_data_field_ir_sync_status} ps ON ps.entity_id = n.nid 
+    LEFT JOIN {field_data_field_ir_po_number} pn ON pn.entity_id = n.nid      
+    WHERE n.type = :type AND ps.field_ir_sync_status_value = :status AND pn.field_ir_po_number_value = :ponum',  
+    array('type'=>'invoice_receipt', 'status' => 1, 'ponum'=> $ponumber))->fetchField();
+
+  if($id){
+    return $id;
+  }else{
+    return false;
+  }
+}
+
+/**
+ * Get the Payment Details nid base on po number
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ */
+function smv_sitefeeds_paymentdetails_nid($ponumber){
+
+  if(!isset($ponumber)){
+    return FALSE;
+  }
+
+  $id = db_query('SELECT n.nid FROM {node} n 
+    LEFT JOIN {field_data_field_pd_sync_status} ps ON ps.entity_id = n.nid 
+    LEFT JOIN {field_data_field_pd_po_number} pn ON pn.entity_id = n.nid      
+    WHERE n.type = :type AND ps.field_pd_sync_status_value = :status AND pn.field_pd_po_number_value = :ponum',  
+    array('type'=>'payment_details', 'status' => 1, 'ponum'=> $ponumber))->fetchField();
+  
+  if($id){
+    return $id;
+  }else{
+    return false;
+  }
+}
+
+function smv_sitefeeds_delete_record($nid){
+  if(!isset($nid) || $nid == "" || empty($nid)){ 
+    return FALSE;
+  }
+
+  node_delete($nid);
+}
+
+/**
+ * Update field collection value
+ *
+ * @param array $node
+ *   The node to update
+ * @param string $collection
+ *   The name of field collection to update
+ * @param array $fields
+ *   The fields under field collection to be updated
+ * @param number $index
+ *   Delta of field collection
+ */
+function smv_sitefeeds_update_field_collection($node, $collection, $fields = array(), $index = 0) {
+  if ($node && $collection && !empty($fields)) {
+
+    // Get the field collection ID
+    $eid = $node->{$collection}[LANGUAGE_NONE][$index]['value'];
+
+    // Load the field collection with the ID from above
+    $entity = entity_load_single('field_collection_item', $eid);
+
+    // Wrap the loaded field collection which makes setting/getting much easier
+    $node_wrapper = entity_metadata_wrapper('field_collection_item', $entity);
+
+    // Loop through our fields and set the values
+    foreach ($fields as $field => $data) {
+        $node_wrapper->{$field}->set($data);
+    }
+
+    $node_wrapper->save(true);
+  }
+}
+
+/**
+ * Insert to heartbeat activity
+ */
+function smv_sitefeeds_heartbeat_insert($message_id, $nid, $uid){
+
+  if($message_id == ''){
+    return false;
+  }
+
+  $timestamp = $_SERVER['REQUEST_TIME'];
+  $language  = $GLOBALS['language']->language;
+
+  $query = db_insert('heartbeat_activity')
+    ->fields(array(
+        'uid'         => $uid,
+        'uid_target'  => $uid,
+        'nid'         => $nid,
+        'nid_target'  => $nid,
+        'cid'         => 0,
+        'access'      => 4,
+        'message_id'  => $message_id,
+        'timestamp'   => $timestamp,
+        'language'    => $language,
+        'variables'   => '',
+        'in_group'    => 0          
+      ))
+    ->execute();
+}
+
+/**
+* Update purchase order status after successful file sync (gr,ir)
+*
+* @param string $po_number
+*   The po number
+* @param string $new_status
+*   The new status of po upon saving
+* @param array $allow_change
+*   The current po status that can be change
+*/
+function smv_sitefeeds_update_po_status($po_number, $new_status, $allow_change, $paymentdate = ''){
+
+  $nid = db_query('SELECT entity_id FROM {field_data_field_po_number} 
+    WHERE field_po_number_value = :ponumber', 
+    array(':ponumber' => $po_number))->fetchField();
+
+  //po exists
+  if($nid){
+
+    //update po
+    $node = node_load($nid);
+    $node_wrapper = entity_metadata_wrapper('node',$node);
+    
+    //get current status of po
+    $current_status = $node_wrapper->field_po_status->value(); 
+
+    if($current_status != $new_status && in_array($current_status, $allow_change)){
+      $status = $new_status;
+      $node_wrapper->field_po_status = $status; 
+
+      //payment date, update if available
+      if($paymentdate != ''){
+        $node_wrapper->field_po_payment_date = $paymentdate;
+      }
+
+      $node_wrapper->save();      
+
+    }else{
+      $status = $current_status;
+    }
+  }  
+
+  return $status;
+}
+
+/**
+* Update purchase order line status after successful file sync
+*
+* @param string $po_number
+*   The po number
+* @param string $lineno
+*   The line number to update
+* @param string status
+*   The updated status
+*/
+function smv_sitefeeds_update_po_line_status($ponumber, $lineno, $status){
+  
+  if(!isset($ponumber) || !isset($lineno) || !isset($status)){
+    return FALSE;
+  }
+
+  $nid  = smv_sitefeeds_purchaseorder_nid($ponumber);
+  $node = node_load($nid);
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  //loop through all po items, update line status
+  $i = 0;
+  foreach ($wrapper->field_po_details as $poitems) {
+    $po_lineno = $poitems->field_po_lineno->value();
+
+    if($po_lineno == $lineno){
+      smv_sitefeeds_update_field_collection($node, 'field_po_details', array('field_po_line_status' => $status), $i);
+    }
+    $i++;
+  }  
+
+  return TRUE;
+}
+
+
+/**
+ * Get all line items of specified po number that has Payment details
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ * @return array
+ *   All payment details line items in array format
+ */
+function smv_sitefeeds_paymentdetails_lineitems($ponumber){
+
+  //Get all Payment Details with the same PO number
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'payment_details')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_pd_po_number', 'value', $ponumber, '=');
+  $result = $query->execute(); 
+
+  $lineitems = array();
+
+  if (isset($result['node'])) {
+
+    $nids = array_keys($result['node']);  
+    
+    foreach($nids as $nid){
+      $node = node_load($nid);
+      $wrapper = entity_metadata_wrapper('node', $node);
+      $items = $wrapper->field_pd_items;
+
+      if($items){
+        $i = 0;
+        foreach($items as $item) {
+          $lineno = $item->field_pd_lineno->value();
+
+          $lineitems[] = $lineno;
+
+          $i++;        
+        }
+      }
+    }
+  }
+
+  return $lineitems;
+}
+
+/**
+ * Get all PO line items based on specified po number
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ * @return array
+ *   All po line items in array format
+ */
+function smv_sitefeeds_po_lineitems($ponumber){
+
+  $lineitems = array();
+
+  $nid = smv_sitecron_po_number_id($ponumber);
+
+  if ($nid) {
+    $node = node_load($nid);
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $items = $wrapper->field_po_details;
+
+    if($items){
+      $i = 0;
+      foreach($items as $item) {
+        $lineno = $item->field_po_lineno->value();
+        $lineitems[] = $lineno;
+        $i++;        
+      }
+    }
+  }
+
+  return $lineitems;
+}
+
+/**
+ * Developer: Emmanuel P. Hallarsis
+ *
+ * Last Update: 8/9/2015
+ *
+ * Get all IR line items based on specified po number
+ *
+ * @param string $ponumber
+ *   The ponumber to search
+ * @return array
+ *   All IR line items in array format
+ */
+function smv_sitefeeds_ir_lineitems($ponumber){
+
+  $lineitems = array();
+
+  $nid = smv_sitefeeds_invoicereceipt_nid($ponumber);
+
+  if ($nid) {
+    $node = node_load($nid);
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $items = $wrapper->field_ir_items;
+
+    if($items){
+      $i = 0;
+      foreach($items as $item) {
+        $lineno = $item->field_ir_lineno->value();
+        $lineitems[] = $lineno;
+        $i++;        
+      }
+    }
+  }
+
+  return $lineitems;
+}
+
+
+/**
+ * Implements hook_feeds_after_import()
+ * Invoked after a feed source has been imported.
+ */
+function smv_sitefeeds_feeds_after_import(FeedsSource $source){
+
+  if($source->id == 'vendor_feeds' || $source->id == 'po_feeds' || $source->id == 'gr_feeds' || $source->id == 'ir_feeds' || $source->id == 'pd_feeds' || $source->id == 'bir_feeds' || $source->id == 'pv_feeds' || $source->id == 'nonpo_feeds'){
+    //Delete files from feeds folder after import
+    $dir = smv_sitecron_feeds_folder_directory($source->id);
+    array_map('unlink', glob($dir . "/*"));
+  }
+
+}
+
+/**
+* Import line items details
+*
+* @param string $importer_id
+*   The feeds importer id
+*/
+function smv_sitefeeds_feeds_import_line_items($importer_id){
+  $destination = smv_sitecron_feeds_folder_directory($importer_id);
+  $feeds_file = smv_sitecron_folder_files_count($destination);
+  if($feeds_file > 2){
+    smv_sitecron_source_config_path($importer_id);
+    $source = feeds_source($importer_id);
+    $source->startImport();    
+  }
+}
+
+function smv_sitefeeds_ordSuffix($n) {
+    $str = "$n";
+    $t = $n > 9 ? substr($str,-2,1) : 0;
+    $u = substr($str,-1);
+    if ($t==1) return $str . 'th';
+    else switch ($u) {
+        case 1: return $str . 'st';
+        case 2: return $str . 'nd';
+        case 3: return $str . 'rd';
+        default: return $str . 'th';
+    }
+}
+
+function smv_sitefeeds_return_vendor_email_address($uid, $individual = 0){
+  
+  $output = '';
+
+  if($individual == 1){
+    
+    //get all record with of the same vendor account
+    $results = db_query('SELECT u.uid, u.mail as email1, ve.field_vendor_email2_value as email2 FROM {users} u 
+      LEFT JOIN {field_data_field_vendor_account} va ON va.entity_id = u.uid 
+      LEFT JOIN {field_data_field_vendor_email2} ve ON ve.entity_id = u.uid 
+      WHERE u.uid = :uid AND u.status = :status', 
+      array('uid'=>$uid, 'status'=>1))->fetchAll();
+
+  }else{
+
+    //get the vendor account number
+    $account = user_load($uid);
+    $user_vendorno_info = field_get_items('user', $account, 'field_vendor_account');
+    $vendor_number = check_plain($user_vendorno_info[0]['value']);
+
+    if($vendor_number){
+      //get all record with of the same vendor account
+      $results = db_query('SELECT u.uid, u.mail as email1, ve.field_vendor_email2_value as email2 FROM {users} u 
+        LEFT JOIN {field_data_field_vendor_account} va ON va.entity_id = u.uid 
+        LEFT JOIN {field_data_field_vendor_email2} ve ON ve.entity_id = u.uid 
+        WHERE va.field_vendor_account_value = :vendor_number AND u.status = :status', 
+        array('vendor_number'=>$vendor_number, 'status'=>1))->fetchAll();
+    }
+  }
+
+  if($results){
+    $emails = array();
+    foreach ($results as $r) {     
+      if($r->email1 != ''){
+        $emails[] = $r->email1;
+      }
+      if($r->email2 != '' && ($r->email1 != $r->email2)){
+        $emails[] = $r->email2;
+      }        
+    }
+    $output .= implode(',', $emails);
+  }
+
+  return $output;
+}
+
+
+function smv_sitefeeds_return_pomaker_email_by_nid($nid){
+  
+  $node = node_load($nid);
+  $node_pomaker_info = field_get_items('node', $node, 'field_po_maker');
+  $node_pomaker_username = check_plain($node_pomaker_info[0]['value']);
+
+  $user = user_load_by_name($node_pomaker_username);
+
+  $output = '';
+  if($user){
+    $output .= $user->mail;
+  }
+
+  return $output;
+}
+
+
+function smv_sitefeeds_pomaker_orgname(){
+  global $user;
+
+  $user = user_load($user->uid);
+  $user_field_info = field_get_items('user', $user, 'field_internalusers_pcode');
+  $tid = check_plain($user_field_info[0]['tid']);
+
+  if($tid){
+    $term = taxonomy_term_load($tid);
+    $name = $term->name;
+  }else{
+    $name = '';
+  }
+
+  return $name;
+}
+
+/**
+ * Update the delivery status of line number - full or partial
+ *
+ * @param string ponumber
+ *   The goods receipt po number
+ */
+function smv_sitefeeds_update_line_delivery_status($ponumber, $lineno, $delivered){
+
+  if(!isset($ponumber) && !isset($lineno) && !isset($delivered))
+    return false;
+
+  $gr_nid  = smv_sitefeeds_goodsreceipt_nid($ponumber);
+  $node    = node_load($gr_nid);
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  //loop through all gr items, update delivery status in GR 
+  $i = 0;
+  foreach ($wrapper->field_gr_items as $items) {
+    $gr_value = $items->field_gr_lineno->value();
+    $gr_deliv = $items->field_gr_delivery->value();
+
+    $po_deliv = ($gr_deliv == 1) ? 'Delivery Complete' : 'Partial Delivery';
+      
+    if($gr_value == $lineno && $gr_deliv != $delivered && $delivered == 1){
+      smv_sitefeeds_update_field_collection($node, 'field_gr_items', array('field_gr_delivery' => 1), $i);
+      $po_deliv = 'Delivery Complete';
+    }else{
+      $po_deliv = $po_deliv;
+    }
+    $i++;
+  }   
+
+  smv_sitefeeds_update_po_line_status($ponumber, $lineno, $po_deliv);     
+}
+
+
+/**
+* Check if line status was set as "Delivery Complete"
+*/
+function smv_sitefeeds_lineitem_delivery_complete($ponumber,$lineno){
+
+  if(!isset($ponumber) || !isset($lineno)){
+    return FALSE;
+  }
+
+  $nid  = smv_sitefeeds_purchaseorder_nid($ponumber);
+  $output = '';
+
+  if($nid){
+    $node = node_load($nid);
+    $wrapper = entity_metadata_wrapper('node', $node);
+
+    //loop through all po items, get current line status
+    foreach ($wrapper->field_po_details as $poitems) {
+      $po_lineno = $poitems->field_po_lineno->value();
+      $line_status = $poitems->field_po_line_status->value();
+
+      if($po_lineno == $lineno && $line_status == "Delivery Complete"){
+        $output = 1;
+        continue;
+      }      
+    }  
+  }
+
+  if($output == 1){
+    return TRUE;
+  }else{
+    return FALSE;
+  }
+}
+
+/**
+* Check if line item has an invoice
+*/
+function smv_sitefeeds_lineitem_has_invoice($ponumber, $lineno){
+  
+  if(!isset($ponumber) || !isset($lineno)){
+    return FALSE;
+  }
+
+  $nid = smv_sitefeeds_invoicereceipt_nid($ponumber);
+  $output = '';
+
+  if($nid){
+    $node = node_load($nid);
+    $wrapper = entity_metadata_wrapper('node', $node);
+
+    //loop through all ir line items
+    foreach ($wrapper->field_ir_items as $items) {
+      $ir_lineno = $items->field_ir_lineno->value();
+
+      if($ir_lineno == $lineno){
+        $output = 1;
+        continue;
+      }
+    }  
+  }
+
+  if($output == 1){
+    return TRUE;
+  }else{
+    return FALSE;
+  }
+}
+
+/**
+* Returns true if current user (vendor) has pending or
+*/
+function smv_sitefeeds_vendor_has_pending_or(){
+  global $user;
+
+  $currentuser = user_load($user->uid);
+
+  if(in_array('vendor',$currentuser->roles)){
+    $currentuser_info = field_get_items('user',$currentuser, 'field_vendor_account');
+    $currentuser_vendorno = check_plain($currentuser_info[0]['value']);    
+
+    if($currentuser_vendorno){
+      $result =  db_query('SELECT entity_id from {field_data_field_por_vendorno} vn 
+        WHERE vn.field_por_vendorno_value = :vendorno LIMIT 1',
+        array('vendorno'=>$currentuser_vendorno))->fetchField();
+
+      if($result){
+        return TRUE;
+      }
+    }
+  }
+}
+
+/**
+ * Developer: Emmanuel P. Hallarsis 
+ *
+ * Last Update: 8/9/2015
+ *
+ * Update GR Status
+ *
+ * @param string ponumber
+ *
+ * @return bool, void
+ *
+ */
+function smv_sitefeeds_update_gr_status($ponumber){
+
+  if(!isset($ponumber))
+    return false;
+
+  $gr_nid  = smv_sitefeeds_goodsreceipt_nid($ponumber);
+  $node    = node_load($gr_nid);
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  $po_lineitems = smv_sitefeeds_po_lineitems($ponumber);   
+  $is_complete = 1;
+
+  //loop through all GR items, update GR status
+  foreach ($node_wrapper->field_gr_items as $items) {
+    $gr_deliv = $items->field_gr_delivery->value();
+
+    if($gr_deliv == 0) {
+      $is_complete = 0;
+      break;
+    }  
+  }   
+
+  if($is_complete && count($node_wrapper->field_gr_items) == count($po_lineitems)) {
+
+    $new_status = 'For Invoice';
+    $allowed  = array('For Delivery');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+
+    $node_wrapper->field_gr_status = 'Complete';
+  }
+  else {
+
+    $new_status = 'For Delivery';
+    $allowed  = array('New', 'Viewed');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+
+    $node_wrapper->field_gr_status = 'Partial';
+  }
+
+  $node_wrapper->save();
+}
+
+/**
+ * Developer: Emmanuel P. Hallarsis 
+ *
+ * Last Update: 8/9/2015
+ *
+ * Update IR Status
+ *
+ * @param string ponumber
+ *
+ * @return bool, void
+ *
+ */
+function smv_sitefeeds_update_ir_status($ponumber){
+
+  if(!isset($ponumber))
+    return false;
+
+  // get IR
+  $ir_nid  = smv_sitefeeds_invoicereceipt_nid($ponumber);
+  $ir_node    = node_load($ir_nid);
+  $ir_node_wrapper = entity_metadata_wrapper('node', $ir_node);
+
+  //get line items
+  $po_lineitems = smv_sitefeeds_po_lineitems($ponumber);    
+  $ir_lineitems = smv_sitefeeds_ir_lineitems($ponumber);
+
+  // compare PO array to IR array
+  if($po_lineitems == $ir_lineitems) {
+
+    $new_status = 'For Payment';
+    $allowed  = array('For Invoice');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+
+    $ir_node_wrapper->field_ir_status = 'Complete';
+  }
+  else {
+
+    $new_status = 'For Invoice';
+    $allowed  = array('For Delivery');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+
+    $ir_node_wrapper->field_ir_status = 'Partial';
+  }
+
+  $ir_node_wrapper->save();
+}
+
+/**
+ * Developer: Emmanuel P. Hallarsis 
+ *
+ * Last Update: 8/9/2015
+ *
+ * Update PD Status
+ *
+ * @param string ponumber
+ *
+ * @return bool, void
+ *
+ */
+function smv_sitefeeds_update_pd_status($ponumber){
+
+  if(!isset($ponumber))
+    return false;
+
+  // get PD items
+  $pd_nid  = smv_sitefeeds_paymentdetails_nid($ponumber);
+  $pd_node    = node_load($pd_nid);
+  $pd_node_wrapper = entity_metadata_wrapper('node', $pd_node);
+
+  //get line items
+  $po_lineitems = smv_sitefeeds_po_lineitems($ponumber);    
+  $pd_lineitems = smv_sitefeeds_paymentdetails_lineitems($ponumber);
+
+  // compare PO array to PD array
+  if($po_lineitems == $pd_lineitems) {
+
+    $new_status = 'Paid';
+    $allowed  = array('For Payment');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+
+    $pd_node_wrapper->field_pd_status = 'Complete';
+  }
+  else {
+
+    $new_status = 'For Payment';
+    $allowed  = array('For Invoice');
+
+    //update po status
+    $status = smv_sitefeeds_update_po_status($ponumber, $new_status, $allowed);
+    if(!$status){
+      drupal_set_message(t('An error occurred and changing of po status did not complete.'), 'error');
+    }
+
+    $pd_node_wrapper->field_pd_status = 'Partial';
+  }
+
+  $pd_node_wrapper->save();
+}

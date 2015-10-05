@@ -1,0 +1,4 @@
+name = Manage User Types
+description = User type management page
+core = 7.x
+package = PRIMESOFT

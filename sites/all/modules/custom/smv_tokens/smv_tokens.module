@@ -1,0 +1,81 @@
+<?php
+
+function smv_tokens_token_info() {
+
+ $types['smv_custom_tokens'] = array(
+    'name' => t('Vendor Portal custom tokens'),
+    'description' => t('Custom tokens for email templates.'),
+  );
+  
+  //one time login link for account verification  
+  $smv_custom_tokens['one-time-confirmation-url'] = array(
+    'name' => t('One time confirmation url'),
+    'description' => t('Generated link for email account verification.'),
+  );
+
+  return array(
+    'types' => $types,
+    'tokens' => array(
+      'smv_custom_tokens' => $smv_custom_tokens,
+    ),
+  );  
+
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function smv_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  global $user;
+
+  $replacements = array();  
+  $sanitize = !empty($options['sanitize']);
+  
+  if ($type == 'smv_custom_tokens' && !empty($data['user'])) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'one-time-confirmation-url':
+          //usage: [smv_custom_tokens:one-time-confirmation-url]
+          $timestamp = REQUEST_TIME;
+          $pass_rehash = drupal_hmac_base64($timestamp, drupal_get_hash_salt() . $user->pass);
+          $confirmation_link = url("user-verification/$user->uid/$timestamp/" . $pass_rehash, array('absolute' => TRUE)); 
+          $replacements[$original] = $confirmation_link;
+          break;          
+      }
+    }
+  }
+
+  if ($type == 'node' && !empty($data['node'])) {
+    $node = $data['node'];
+    foreach ($tokens as $name => $original) {
+      switch ($name) {            
+        case 'rewriteponumber':
+        //usage: [node:rewriteponumber]
+        $toreplace = smv_tokens_rewrite_ponumber($node->nid);
+        $replacements[$original] = $toreplace;                
+        break;
+      }
+    }
+  }  
+
+  if($type == 'node' && !empty($data['node'])){
+
+  }
+  return $replacements;
+}
+
+function smv_tokens_rewrite_ponumber($nid){
+
+  $output = '';
+
+  $result = db_query('SELECT field_po_number_value FROM {field_data_field_po_number} 
+    WHERE entity_id = :nid', 
+    array(':nid' => $nid))->fetchField();  
+
+  if($result){
+    $output .= $result;
+  }
+
+  return $output;    
+}
+

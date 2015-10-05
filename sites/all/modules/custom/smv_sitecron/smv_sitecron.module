@@ -1,0 +1,658 @@
+<?php
+
+/**
+* System cron scripts
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/
+
+/**
+* Check destination folder
+*
+* @param string $destination
+*   The exact destination folder path
+*/
+function smv_sitecron_check_destination_folder($destination){
+
+	//Make sure destination folder exists
+	if(!file_exists($destination)){
+		echo "$destination does not exist\n";
+		return FALSE;
+	}
+
+	//Make sure destination folder is a directory
+	if(!is_dir($destination)){
+		echo "$destination is not a directory!\n";
+		return FALSE;
+	}
+
+	//Folder should be writable
+	if(!is_writable($destination)){
+		echo "$destination is not writable!\n";
+		return FALSE;
+	}
+}
+
+/**
+* Get folder directory of feeds
+*
+* @param string $importer_id
+*   The feeds importer id
+*/
+function smv_sitecron_feeds_folder_directory($importer_id){
+
+	switch($importer_id){
+		case 'vendor_feeds':
+			$output = drupal_realpath('private://sm_feeds/vendors');
+			break;		
+		case 'po_feeds':
+			$output = drupal_realpath('private://sm_feeds/po');
+			break;	
+		case 'po_details_feeds':
+			$output = drupal_realpath('private://sm_feeds/po_details');
+			break;	
+		case 'gr_feeds':
+			$output = drupal_realpath('private://sm_feeds/gr');
+			break;	
+		case 'gr_details_feeds':
+			$output = drupal_realpath('private://sm_feeds/gr_details');
+			break;				
+		case 'ir_feeds':
+			$output = drupal_realpath('private://sm_feeds/ir');
+			break;	
+		case 'ir_details_feeds':
+			$output = drupal_realpath('private://sm_feeds/ir_details');
+			break;				
+		case 'pd_feeds':
+			$output = drupal_realpath('private://sm_feeds/pd');
+			break;	
+		case 'pd_details_feeds':
+			$output = drupal_realpath('private://sm_feeds/pd_details');
+			break;				
+		case 'bir_feeds':
+			$output = drupal_realpath('private://sm_feeds/bir');
+			break;	
+		case 'pv_feeds':
+			$output = drupal_realpath('private://sm_feeds/pv');
+			break;	
+		case 'nonpo_feeds':
+			$output = drupal_realpath('private://sm_feeds/non_po');
+			break;		
+		case 'pending_or_items':
+			$output = drupal_realpath('private://sm_feeds/pending_or');
+			break;		
+		case 'pv_details_feeds':
+			$output = drupal_realpath('private://sm_feeds/pv_details');
+			break;													
+	}
+
+	return $output;
+}
+
+/**
+* Get folder directory of files for import
+*
+* @param string $importer_id
+*   The feeds importer id
+*/
+function smv_sitecron_file_folder_directory($importer_id){
+	
+	switch($importer_id){
+		case 'vendor_feeds':
+			$output = drupal_realpath('private://sm_files/vendors');
+			break;	
+		case 'po_feeds':
+			$output = drupal_realpath('private://sm_files/purchase-order');
+			break;		
+		case 'gr_feeds':
+			$output = drupal_realpath('private://sm_files/goods-receipt');
+			break;				
+		case 'ir_feeds':
+			$output = drupal_realpath('private://sm_files/invoice-receipt');
+			break;	
+		case 'pd_feeds':
+			$output = drupal_realpath('private://sm_files/payment-details');
+			break;							
+		case 'bir_feeds':
+			$output = drupal_realpath('private://sm_files/bir2307');
+			break;		
+		case 'pv_feeds':
+			$output = drupal_realpath('private://sm_files/payment-voucher');
+			break;			
+		case 'nonpo_feeds':
+			$output = drupal_realpath('private://sm_files/non-po');
+			break;			
+		case 'pending_or_items':
+			$output = drupal_realpath('private://sm_files/pending-or');
+			break;										
+	}
+
+	return $output;
+}
+
+/**
+* Write a csv file
+*/
+function smv_sitecron_output_csv($dataArray, $headers="", $target_path = FALSE, $filename = "") {
+	ob_start();
+	$f = fopen('php://output', 'w') or die("Can't open php://output");
+	$n = 0;		
+
+	if($headers){
+		fputcsv($f, $headers);
+	}
+	
+	foreach ($dataArray as $line){
+		$n++;
+		if (!fputcsv($f, $line)){
+			die("Can't write line $n: $line");
+		}
+	}
+	
+	fclose($f) or die("Can't close php://output");
+	$str = ob_get_contents();
+	
+	if(!$target_path || !$filename){
+		return FALSE;
+	}
+	smv_sitecron_write_file($target_path . $filename, $str, 'w+');
+	ob_end_clean();  
+}
+
+
+function smv_sitecron_write_file($path, $data, $mode = FOPEN_WRITE_CREATE_DESTRUCTIVE){
+	if ( ! $fp = @fopen($path, $mode)){
+		return FALSE;
+	}
+	flock($fp, LOCK_EX);
+	fwrite($fp, $data);
+	flock($fp, LOCK_UN);
+	fclose($fp);
+	return TRUE;
+}
+
+/**
+* Csv contents to array
+*/
+function smv_sitecron_csv_to_array($file, $delim = ',', $encl = '"', $header = false) {
+	if(!file_exists($file))
+  	return false;
+    
+  //Read lines of file to array
+  $file_lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    
+  //Empty file
+  if($file_lines === array())
+  	return NULL;
+
+  $out = NULL;
+
+  //Now line per line (strings)
+  foreach ($file_lines as $line) {
+  	//Skip empty lines
+    if(trim($line) === '')
+    	continue;
+        
+    //Convert line to array
+    $array_fields = array_map('trim', str_getcsv($line, $delim, $encl));
+    $out[] = $array_fields;
+  }   
+
+  return $out;
+}
+
+/**
+* Csv column count
+*/
+function smv_sitecron_csv_column_count($file) {
+	if(!file_exists($file))
+  	return false;
+	
+	$csvfile = fopen($file, 'r');
+	$line = fgetcsv($csvfile);
+  	$numcols = count($line);
+
+  	return $numcols;
+}
+
+/**
+* Move file to feeds folder
+*
+* @param string $importer_id
+*   The feeds importer id
+*/
+function smv_sitecron_move_to_feeds_folder($importer_id, $currentdir, $file){
+
+	$feeds_folder = smv_sitecron_feeds_folder_directory($importer_id);
+
+	$current_path = $currentdir . '/' . $file;	
+	$new_path 		= $feeds_folder . '/' . $file;
+
+	file_unmanaged_move($current_path, $new_path, FILE_EXISTS_REPLACE);
+}
+
+/**
+* Move file to exception folder
+*
+* @param string $importer_id
+*   The feeds importer id
+*/
+function smv_sitecron_move_to_exception_folder($importer_id, $file){
+
+  $info = pathinfo($file);
+  $filename  = $info["filename"];
+  $basename  = $info["basename"];
+
+  $current_path =  $file;
+  $new_path     = 'private://sm_vendor/exception/'.$basename;
+
+  $move = file_unmanaged_move($current_path, $new_path, FILE_EXISTS_REPLACE);
+
+  if($move){
+    return $new_path;
+  }else{
+    return false;
+  }
+}
+
+function smv_sitecron_move_to_active_folder($importer_id, $file, $vendorno, $newfilename=''){
+
+  $info = pathinfo($file);
+  $filename  = $info["filename"];
+  $extension = $info["extension"];
+
+  if($newfilename != ''){
+  	$renamedfile = $newfilename . '.' . strtolower($extension); 
+  }else{
+  	$renamedfile =  $filename . '.' . strtolower($extension);
+  }
+ 
+	switch ($importer_id) {
+		case 'po_feeds':			
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/po/'.$renamedfile;
+			break;		
+		case 'bir_feeds':
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/bir/'.$renamedfile;
+			break;
+		case 'pv_feeds':
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/pv/'.$renamedfile;			
+			break;
+		case 'gr_feeds':
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/gr/'.$renamedfile;			
+			break;			
+		case 'ir_feeds':
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/ir/'.$renamedfile;			
+			break;	
+		case 'pd_feeds':
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/pd/'.$renamedfile;			
+			break;		
+		case 'nonpo_feeds':
+			$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/active/nonpo/'.$renamedfile;			
+			break;				
+	}
+	
+	$move = file_unmanaged_move($file, $new_path, FILE_EXISTS_REPLACE);
+	
+	if($move){
+    return $new_path;
+  }else{
+    return false;
+  }
+}
+
+function smv_sitecron_copy_to_details_feeds_folder($importer_id, $file){
+
+  $info = pathinfo($file);
+  $filename  = $info["filename"];
+  $extension = $info["extension"];
+
+  $renamedfile =  $filename . '.' . strtolower($extension);
+
+	switch ($importer_id) {
+		case 'po_feeds':
+			$new_path = 'private://sm_feeds/po_details/'.$renamedfile;
+			break;		
+		case 'gr_feeds':
+			$new_path = 'private://sm_feeds/gr_details/'.$renamedfile;		
+			break;
+		case 'ir_feeds':
+			$new_path = 'private://sm_feeds/ir_details/'.$renamedfile;		
+			break;			
+		case 'pd_feeds':
+			$new_path = 'private://sm_feeds/pd_details/'.$renamedfile;		
+			break;
+		case 'pv_feeds':
+			$new_path = 'private://sm_feeds/pv_details/'.$renamedfile;		
+			break;			
+	}
+
+	file_unmanaged_copy($file, $new_path, FILE_EXISTS_REPLACE);
+}
+
+/**
+* Move file to vendor archive folder
+*
+* @param integer $fid
+*   The file id
+* @param string $vendorno
+*   The vendor number
+*/
+function smv_sitecron_move_to_vendor_archive_folder($fid, $vendorno){
+	
+	if(!isset($fid) || !isset($vendorno)) {
+		return false;
+	}
+
+	$source = file_load($fid);
+	$new_filename = $source->filename;
+	$new_path = 'private://sm_vendor/vendors/'.$vendorno.'/archive/'.$new_filename;	
+  $source->filename = $new_filename;
+
+	file_move($source, $new_path, FILE_EXISTS_REPLACE);
+}
+
+
+function smv_sitecron_recursive_array_search($needle,$haystack) {
+	foreach($haystack as $key=>$value) {
+		$current_key=$key;
+		if($needle===$value OR (is_array($value) && smv_sitecron_recursive_array_search($needle,$value) !== false)) {
+			return $current_key;
+		}
+	}
+	return false;
+}
+
+
+function smv_sitecron_convert_date_to_timestamp($string_date){	
+
+	//eg. 20141016
+	if(isset($string_date) && $string_date != ''){
+		$dtime = DateTime::createFromFormat("Ymd", $string_date);
+		$timestamp = $dtime->getTimestamp();
+		$output = $timestamp;
+	}else{
+		$output = '';
+	}
+
+	return $output;
+}
+
+/**
+* Count the files inside folder 
+*/
+function smv_sitecron_folder_files_count($destination_path){	
+	$files_in_directory = scandir($destination_path);
+	$items_count = count($files_in_directory);
+	return $items_count;
+}
+
+/**
+* Configure feeds file fetcher source path
+*
+* @param string $importer_id
+*   Id of feeds importer
+* @param string $current_path
+*   The current path of feeds importer
+*/
+function smv_sitecron_source_config_path($importer_id){
+
+	switch($importer_id){
+		case 'vendor_feeds':
+			$path = 'private://sm_feeds/vendors';
+			break;		
+		case 'po_feeds':
+			$path = 'private://sm_feeds/po';
+			break;	
+		case 'po_details_feeds':
+			$path = 'private://sm_feeds/po_details';
+			break;	
+		case 'gr_feeds':
+			$path = 'private://sm_feeds/gr';
+			break;	
+		case 'gr_details_feeds':
+			$path = 'private://sm_feeds/gr_details';
+			break;				
+		case 'ir_feeds':
+			$path = 'private://sm_feeds/ir';
+			break;	
+		case 'ir_details_feeds':
+			$path = 'private://sm_feeds/ir_details';
+			break;				
+		case 'pd_feeds':
+			$path = 'private://sm_feeds/pd';
+			break;	
+		case 'pd_details_feeds':
+			$path = 'private://sm_feeds/pd_details';
+			break;					
+		case 'bir_feeds':
+			$path = 'private://sm_feeds/bir';
+			break;	
+		case 'pv_feeds':
+			$path = 'private://sm_feeds/pv';
+			break;		
+		case 'nonpo_feeds':
+			$path = 'private://sm_feeds/non_po';
+			break;
+		case 'pending_or_items':
+			$path = 'private://sm_feeds/pending_or';			
+			break;	
+		case 'pv_details_feeds':
+			$path = 'private://sm_feeds/pv_details';			
+			break;											
+	}
+
+	$source = feeds_source($importer_id);
+	$config['FeedsFileFetcher']['source'] = $path; 
+	$source->setConfig($config);
+	$source->save();  
+
+	return true;
+}
+
+/**
+* Import line items feeds
+*
+* @param string $importer_id
+*   Id of feeds importer
+*/
+function smv_sitecron_line_items_feeds_import($importer_id){
+
+	$destination = smv_sitecron_feeds_folder_directory($importer_id);
+	$files_count = smv_sitecron_folder_files_count($destination);
+	
+	//process only if there's file inside feeds directory
+	$files = glob($destination . "/*.csv");	
+
+	if($files_count > 2){
+		foreach($files as $file) {
+			$feedsSource = feeds_source($importer_id);
+			$feedsSource->startImport(); 
+	    file_unmanaged_delete($file);
+	  }
+	}
+
+  smv_sitecron_source_config_path($importer_id);
+}
+
+/**
+* Get vendor account number base on po number
+*
+* @param string $po_number
+*   The po number to search
+*/
+function smv_sitecron_vendornum_based_on_ponum($po_number){
+
+	$result = db_query('SELECT pov.field_po_vendorno_value FROM {field_data_field_po_number} po
+		LEFT JOIN {field_data_field_po_vendorno} pov ON pov.entity_id = po.entity_id
+		WHERE po.field_po_number_value = :po_number', 
+		array(':po_number' => $po_number))->fetchField();
+
+	if($result){
+		return $result;
+	}else{
+		return false;
+	}
+}
+
+/**
+* Remove special characters
+*
+* @param string $importer_id
+*   Id of feeds importer
+* @param string $data
+*   The text to clean
+*/
+function smv_sitecron_remove_special_characters($importer_id, $data){
+	
+	switch($importer_id){
+		case 'bir_feeds':
+			$pregReplace = '/[^A-Za-z0-9\._ -]/';
+			break;
+		default:
+			$pregReplace = '/[^A-Za-z0-9\._-]/';
+	}
+
+	if(preg_match('/[\'^£$%&*()}{@#~?><>,|=+¬]/', $data)){
+		$data = preg_replace($pregReplace,'', $data);						
+	}
+
+	return $data;
+}
+
+
+/**
+* Check if vendor account exist
+*
+* @param string $account_no
+*   The account number of vendor to search
+*/
+function smv_sitecron_vendor_uid($account_no){
+
+	$uid = db_query('SELECT entity_id FROM {field_data_field_vendor_account} 
+		WHERE field_vendor_account_value = :account_no', 
+		array(':account_no' => $account_no))->fetchField();
+
+	if($uid){
+		return $uid;
+	}else{
+		return false;
+	}
+}
+
+
+/**
+* Check if po number exists
+*
+* @param string $po_number
+*   The po number to search
+*/
+function smv_sitecron_po_number_id($po_number){
+
+	$id = db_query('SELECT entity_id FROM {field_data_field_po_number} 
+		WHERE field_po_number_value = :po_number', 
+		array(':po_number' => $po_number))->fetchField();
+
+	if($id){
+		return $id;
+	}else{
+		return false;
+	}
+}
+
+/**
+* Get current status of Purchase Order
+*
+* @param string $nid
+*   The po number node nid
+*/
+function smv_sitecron_purchase_order_status($nid){
+	$result = db_query('SELECT field_po_status_value FROM {field_data_field_po_status} 
+		WHERE entity_id = :nid', array(':nid' => $nid))->fetchField();
+
+	if($result){
+		return $result;
+	}else{
+		return false;
+	}
+}
+
+/**
+* Get current po maker of Purchase Order
+*
+* @param string $nid
+*   The po number node nid
+*/
+function smv_sitecron_purchase_order_pomaker($nid){
+	$result = db_query('SELECT field_po_maker_value FROM {field_data_field_po_maker} 
+		WHERE entity_id = :nid', array(':nid' => $nid))->fetchField();
+
+	if($result){
+		return $result;
+	}else{
+		return false;
+	}
+}
+
+/**
+ * Get the corresponding PO number base on document number
+ *
+ * @param string $docno
+ *   The document number to search
+ */
+function smv_sitecron_ir_ponumber_based_on_docno($docno){
+
+	$result = db_query('SELECT po.field_ir_po_number_value FROM {field_data_field_ir_po_number} po 
+		LEFT JOIN {field_data_field_ir_document_no} dn ON dn.entity_id = po.entity_id 
+		WHERE dn.field_ir_document_no_value = :docno', array(':docno' => $docno))->fetchField();
+
+	if($result){
+		return $result;
+	}else{
+		return false;
+	}
+}
+
+/**
+ * Validate date format. Global format in file should be 20141016 (YearMonthDate)
+ *
+ * @param string $value
+ *   The date string to be validated
+ */
+function smv_sitecron_validate_date_format($value){
+	$date_regex = '/^(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/';
+
+	if (preg_match($date_regex, $value)) {
+	  return TRUE;
+	}
+}  
+
+/**
+ * Return the equivalent quarter number of month
+ *
+ * @param int $month
+ *   The number value of month without leading zero
+ */
+function smv_sitecron_date_quarterno($month){
+
+	if(!isset($month) || $month == ''){
+		return false;
+	}
+
+	if($month >= 1 && $month <= 3){
+		//1st Quarter - Jan to March
+		return 1;
+	}elseif($month >=4 && $month <=6){
+		//2nd Quarter - April to June
+		return 2;
+	}elseif($month >=7 && $month <=9){
+		//3rd Quarter - July to Sept
+		return 3;
+	}elseif($month >=10 && $month <=12){
+		//4th Quarter - Oct to Dec
+		return 4;
+	}else{
+		//something is wrong, invalid month number
+		return '';
+	}
+}

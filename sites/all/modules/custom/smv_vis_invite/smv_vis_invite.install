@@ -1,0 +1,43 @@
+<?php
+
+function smv_vis_invite_schema() {
+	$schema['webform_vis_codes'] = array(
+		'description' => 'Table for storing generated form tokens.',
+		'fields' => array(
+			'cid' => array(
+				'description' => 'The primary identifier for a code.',
+		        'type' => 'serial',
+		        'unsigned' => TRUE,
+		        'not null' => TRUE,
+			),
+			'code' => array(
+				'description' => 'A code for the webform.',
+		        'type' => 'varchar',
+		        'length' => 64,
+		        'not null' => TRUE,
+		        'default' => '',
+      ),
+			'generated' => array(
+				'description' => 'The Unix timestamp when the code was generated.',
+		        'type' => 'int',
+		        'not null' => TRUE,
+		        'default' => 0,
+			),
+			'used' => array(
+				'description' => 'The Unix timestamp when the code was used.',
+		        'type' => 'int',
+		        'not null' => FALSE,
+		        'default' => 0,
+			),
+		),
+		'indexes' => array(
+			'used' => array('used'),
+		),
+		'unique keys' => array(
+			'nid_code' => array('code'),
+		),
+		'primary key' => array('cid'),
+	);
+	
+	return $schema;
+}

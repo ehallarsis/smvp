@@ -1,0 +1,141 @@
+<?php
+
+/**
+* Alter Vendor Information Sheet Form
+* @author Jen Andes
+* @copyright Primesoft Phils. Inc
+*
+**/ 
+
+function smv_vis_form_alter(&$form, &$form_state, $form_id) {
+  
+  if($form_id == 'webform_client_form_39'){
+
+    $form['submitted']['organization']['#empty_option'] = t(" - SELECT - ");
+
+    //todays date
+    $month = format_date(time(), 'custom', 'm');
+    $date  = format_date(time(), 'custom', 'd');
+    $year  = format_date(time(), 'custom', 'Y');
+    $today = $month . "/" . $date . "/" . $year;
+    $form['submitted']['date']['#default_value'] = $today;
+    $form['submitted']['date']['#disabled'] = TRUE;
+
+    $form['actions']['cancel'] = array(
+      '#markup' => l(t('Cancel'),'<front>'),
+      '#weight' => 100,       
+    );
+
+    array_unshift($form['#validate'],'smv_vis_validate');  
+
+    /*$form['submitted']['company_name']['#states'] = array(
+      'enabled'  => array(':input[name="submitted[organization]"]' => array('filled' => TRUE)),
+      'disabled' => array(':input[name="submitted[organization]"]' => array('empty' =>TRUE)));*/     
+  }
+}
+
+function smv_vis_validate($form, &$form_state){
+  
+  //Question #1
+  $question1 = $form_state['values']['submitted']['questionnaire']['question_1'];
+  
+  $question1_answer1_company = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer1_company'];
+  $question1_answer2_company = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer2_company'];
+  $question1_answer3_company = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer3_company'];
+
+  $question1_answer1_name    = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer1_name'];
+  $question1_answer2_name    = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer2_name'];
+  $question1_answer3_name    = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer3_name'];
+
+  $question1_answer1_number  = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer1_number'];
+  $question1_answer2_number  = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer2_number'];
+  $question1_answer3_number  = $form_state['values']['submitted']['questionnaire']['question1_answers']['q1_answer3_number'];
+
+  if(!isset($question1) || $question1 == ''){
+    form_set_error('question_1', t('Please select Yes/No to Question #1.'));
+  }
+
+  if($question1 == 1){
+    //company
+    if($question1_answer1_company == '' && $question1_answer2_company == '' && $question1_answer3_company == ''){
+      form_set_error("q1_answer1_company", t('Please enter atleast one SM Affiliated Company on Question #1'));      
+    }
+    //contact name
+    if($question1_answer1_name == '' && $question1_answer2_name == '' && $question1_answer3_name == ''){
+      form_set_error("q1_answer1_name", t('Please enter atleast one Contact Person on Question #1'));      
+    }    
+    //contact number
+    if($question1_answer1_number == '' && $question1_answer2_number == '' && $question1_answer3_number == ''){
+      form_set_error("q1_answer1_number", t('Please enter atleast one Contact Number on Question #1'));      
+    }       
+  }
+
+  //Question #2
+  $question2 = $form_state['values']['submitted']['questionnaire']['question_2'];
+
+  $question2_answer1_name    = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer1_name'];
+  $question2_answer2_name    = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer2_name'];
+  $question2_answer3_name    = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer3_name'];
+
+  $question2_answer1_position = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer1_position'];
+  $question2_answer2_position = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer2_position'];
+  $question2_answer3_position = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer3_position'];
+
+  $question2_answer1_company = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer1_company'];
+  $question2_answer2_company = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer2_company'];
+  $question2_answer3_company = $form_state['values']['submitted']['questionnaire']['question2_answers']['q2_answer3_company'];
+
+  if(!isset($question2) || $question2 == ''){
+    form_set_error('question_2', t('Please select Yes/No to Question #2.'));
+  }  
+
+  if($question2 == 1){
+    //name
+    if($question2_answer1_name == '' && $question2_answer2_name == '' && $question2_answer3_name == ''){
+      form_set_error("q2_answer1_name", t('Please enter atleast one Name on Question #2'));      
+    }
+    //position
+    if($question2_answer1_position == '' && $question2_answer2_position == '' && $question2_answer3_position == ''){
+      form_set_error("q2_answer1_position", t('Please enter atleast one Position on Question #2'));      
+    }    
+    //company
+    if($question2_answer1_company == '' && $question2_answer2_company == '' && $question2_answer3_company == ''){
+      form_set_error("q2_answer1_company", t('Please enter atleast one Company on Question #2'));      
+    }       
+  }
+
+  //Question #3
+  $question3 = $form_state['values']['submitted']['questionnaire']['question_3'];
+
+  $question3_answer1_name    = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer1_name'];
+  $question3_answer2_name    = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer2_name'];
+  $question3_answer3_name    = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer3_name'];
+
+  $question3_answer1_position = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer1_position'];
+  $question3_answer2_position = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer2_position'];
+  $question3_answer3_position = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer3_position'];
+
+  $question3_answer1_company  = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer1_company'];
+  $question3_answer2_company  = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer2_company'];
+  $question3_answer3_company  = $form_state['values']['submitted']['questionnaire']['question3_answers']['q3_answer3_company'];
+
+  if(!isset($question3) || $question3 == ''){
+    form_set_error('question_3', t('Please select Yes/No to Question #3.'));
+  }  
+
+  if($question3 == 1){
+    //name
+    if($question3_answer1_name == '' && $question3_answer2_name == '' && $question3_answer3_name == ''){
+      form_set_error("q3_answer1_name", t('Please enter atleast one Name on Question #3'));      
+    }
+    //position
+    if($question3_answer1_position == '' && $question3_answer2_position == '' && $question3_answer3_position == ''){
+      form_set_error("q3_answer1_position", t('Please enter atleast one Position on Question #3'));      
+    }    
+    //company
+    if($question3_answer1_company == '' && $question3_answer2_company == '' && $question3_answer3_company == ''){
+      form_set_error("q3_answer1_company", t('Please enter atleast one Company on Question #3'));      
+    }       
+  }  
+
+}
